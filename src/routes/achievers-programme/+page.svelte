@@ -1,4 +1,6 @@
 <script>
+	import { slide } from 'svelte/transition';
+
 	const studentImageUrl =
 		'https://s3-alpha-sig.figma.com/img/812f/30e9/bf09f192f89d996aa14ac07a2fc454b6?Expires=1737331200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=A4pdRW1~NiB1C7aVoT5VLMKl93PqeZfGrfN12v89Q6-pNF6yZDJc~K6XVGoe9McQiE7NN4hsIH8FSNOd9-MQ8WcvFHD7Oyqs2NTumGgB~FBXDHPqiUgGrd~7bN7qjiZxJWAxlgmoEbNdkuFrfYMsW4Vfu6wJyfj4AXh~EmeNLv2kVncBaL4NmoSsNwHZbgcIz3ViciAKJXccAyg28GWeRi6qV1097xwjGAtQUrgKdzAp3ySAZTxLaU1F3q2w6KK~4MTYNBrw4sVj6NhBT97sPVY-ph-HZeVuVJuQbhpEobRjDmqWYJ3xwtQ~HoCO-PojgRSVjwSW3an4p4z5vxNSbQ__';
 
@@ -216,7 +218,7 @@
 								</span>
 							</button>
 							{#if openIndexes.includes(index)}
-								<div class="border-t p-4 text-gray-600">
+								<div transition:slide class="border-t p-4 text-gray-600">
 									{answer}
 								</div>
 							{/if}
