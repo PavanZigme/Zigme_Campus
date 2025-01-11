@@ -1,0 +1,30 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+
+
+/* styles.css */
+/* screens: {
+    'xs': '375px',    // Small mobile devices
+    'sm': '640px',   	 // Large mobile devices
+    'md': '768px',    // Tablets
+    'lg': '1024px',   // Desktop
+    'xl': '1280px',   // Large desktop
+    '2xl': '1536px'   // Extra large screens
+  }, */
+
+/* Responsive Styles for H1 */
+h1 {
+  @apply text-2xl xs:text-[28px] sm:text-[32px] md:text-[36px] lg:text-[50px] xl:text-[56px]  leading-10  md:leading-[4rem]  xl:leading-[4rem];
+}
+
+/* Responsive Styles for H2 */
+/* h2 {
+  @apply text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold leading-snug text-gray-700;
+} */
+
+/* Responsive Styles for Paragraphs */
+/* p {
+  @apply text-base sm:text-lg md:text-xl lg:text-2xl leading-relaxed text-gray-600;
+} */
