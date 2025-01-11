@@ -35,6 +35,24 @@
 			openIndexes = [...openIndexes, index];
 		}
 	};
+
+	// Add state for popup visibility
+	let showPopup = $state(false);
+
+	// Add form data state
+	let formData = $state({
+		name: '',
+		email: '',
+		phone: '',
+		education: '',
+	});
+
+	// Add form handler
+	const handleSubmit = () => {
+		// Handle form submission logic here
+		console.log('Form submitted:', formData);
+		showPopup = false;
+	};
 </script>
 
 <!-- Main Container with padding -->
@@ -73,6 +91,7 @@
 					</div>
 					<div>
 						<button class="rounded-[8px] bg-[#022F49] px-[30px] py-[11px] text-[16px] font-normal text-accent"
+							onclick={() => showPopup = true}
 							>Apply now</button
 						>
 					</div>
@@ -192,6 +211,7 @@
 					</div>
 					<div class="text-center">
 						<button class="rounded-[8px] bg-[#022F49] px-[30px] py-[11px] text-[16px] font-normal text-accent"
+							onclick={() => showPopup = true}
 							>Apply now</button
 						>
 					</div>
@@ -245,6 +265,90 @@
 		</div>
 	</div>
 </div>
+
+{#if showPopup}
+	<!-- svelte-ignore a11y_click_events_have_key_events -->
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<div 
+		class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+		onclick={(e) => {
+			if (e.target === e.currentTarget) showPopup = false;
+		}}
+	>
+		<div 
+			class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl"
+			transition:slide
+		>
+			<div class="mb-4 flex justify-between">
+				<h2 class="text-xl font-bold">Apply Now</h2>
+				<button 
+					class="text-gray-500 hover:text-gray-700"
+					onclick={() => showPopup = false}
+				>
+					✕
+				</button>
+			</div>
+			
+			<form onsubmit={handleSubmit} class="space-y-4">
+				<div>
+					<label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
+					<input
+						type="text"
+						id="name"
+						bind:value={formData.name}
+						required
+						class="mt-1 w-full rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
+					/>
+				</div>
+
+				<div>
+					<label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+					<input
+						type="email"
+						id="email"
+						bind:value={formData.email}
+						required
+						class="mt-1 w-full rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
+					/>
+				</div>
+
+				<div>
+					<label for="phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
+					<input
+						type="tel"
+						id="phone"
+						bind:value={formData.phone}
+						required
+						class="mt-1 w-full rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
+					/>
+				</div>
+
+				<div>
+					<label for="education" class="block text-sm font-medium text-gray-700">Highest Education</label>
+					<select
+						id="education"
+						bind:value={formData.education}
+						required
+						class="mt-1 w-full rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
+					>
+						<option value="">Select Education</option>
+						<option value="high_school">High School</option>
+						<option value="bachelors">Bachelor's Degree</option>
+						<option value="masters">Master's Degree</option>
+						<option value="phd">PhD</option>
+					</select>
+				</div>
+
+				<button
+					type="submit"
+					class="w-full rounded-md bg-[#022F49] py-2 text-white hover:bg-[#033a5a]"
+				>
+					Submit Application
+				</button>
+			</form>
+		</div>
+	</div>
+{/if}
 
 <style>
 	/* :global(body) {
