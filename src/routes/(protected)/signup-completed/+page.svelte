@@ -4,33 +4,15 @@
 	import { SVG } from '$lib/utils/svgs';
 	import { withLoading } from '$lib/utils/async';
 	import { AUTH_CONFIG } from '$lib/config/auth';
-
-	import student1 from '../../lib/utils/images/millennial-man.png';
-	import student2 from '../../lib/utils/images/curly-latin-female.png';
-
-	function handleSubmit() {
-		console.log('hi');
-	}
+	import student1 from '../../../lib/utils/images/millennial-man.png';
+	import student2 from '../../../lib/utils/images/curly-latin-female.png';
 
 	const levels = $state([
-		{ id: 'start', label: 'Start', status: 'completed' },
-		{ id: 'lvl1', label: 'LVL I', status: 'current' },
-		{ id: 'lvl2', label: 'LVL II', status: 'upcoming', hasAvatar: true },
-		{ id: 'lvl3', label: 'LVL III', status: 'upcoming' }
+		{ id: 'start', label: 'Start', status: true },
+		{ id: 'lvl1', label: 'LVL I', status: false },
+		{ id: 'lvl2', label: 'LVL II', status: false, hasAvatar: true },
+		{ id: 'lvl3', label: 'LVL III', status: false }
 	]);
-
-	const getProgressStyle = (status) => {
-		switch (status) {
-			case 'completed':
-				return 'bg-blue-500';
-			case 'current':
-				return 'bg-slate-200';
-			case 'upcoming':
-				return 'bg-slate-200';
-			default:
-				return 'bg-slate-200';
-		}
-	};
 </script>
 
 <div class="h-screen w-full bg-[#E0E6E9]">
@@ -60,7 +42,6 @@
 							stroke-linejoin="round"
 						/>
 					</svg>
-
 					<a href={AUTH_CONFIG.ROUTES.DASHBOARD}> Go to Dashboard </a>
 				</div>
 			</div>
@@ -99,43 +80,35 @@
 		<!-- Form Section -->
 		<main class="relative h-screen">
 			<div
-				class="flex h-full flex-col justify-between gap-[12px] rounded-t-[40px] bg-[#022F49] p-[40px] text-white lg:rounded-tr-[240px]"
+				class="flex h-full flex-col justify-between gap-[12px] rounded-t-[40px] bg-[#022F49] p-[24px] text-white sm:p-[40px] lg:rounded-tr-[240px]"
 			>
-				<div class="flex h-full w-full flex-col justify-between text-center">
-					<div>
+				<div class="flex h-full w-full flex-col justify-between gap-[1rem] text-center sm:gap-0">
+					<div class="">
 						<h1 class="text-[28px] font-[700]">Sign-Up Complete!</h1>
 						<p class="text-[18px] font-[400]">
 							Welcome to <span class="text-[18px] font-[700]">ZigMe</span>! Your journey has
 							officially begun.
 						</p>
 					</div>
+
 					<div>
-						<!-- Progress Text -->
-						<div class="mt-4 text-start">
+						<div class="ml-3 text-start">
 							<p class="font-semibold text-orange-500">You've Unlocked Level 1 !</p>
 						</div>
-
-						<!-- Progress Tracker -->
-						<div class="relative w-full">
-							<!-- Progress Line -->
-							<div class="mb-4 flex gap-2">
-								{#each levels as level, index}
-									<!-- {#if index < levels.length - 1}
-										<div 
-											class="h-[2px] flex-1 rounded-[50px] {level.status === 'completed' ? 'bg-blue-500' : 'bg-slate-200'}"
-										></div>
-									{/if} -->
-									<!-- <div class="border w-full"></div> -->
-								{/each}
-							</div>
-
-							<!-- Progress Points -->
+						<div>
 							<div class="relative flex items-center justify-between">
-								{#each levels as level}
-								<div class="w-full absolute border"></div>
-									<div class="flex flex-col items-center gap-2">
+								{#each levels as level, index}
+									{#if index !== 0}
+										<div
+											class="z-0 w-full border-t {index !== 1
+												? ' border-[#F1F1F133]'
+												: 'border-accent'}"
+										></div>
+									{/if}
+									<div class="flex flex-col gap-2">
 										{#if level.hasAvatar}
 											<svg
+												class="z-[1] m-3"
 												xmlns="http://www.w3.org/2000/svg"
 												width="24"
 												height="25"
@@ -165,35 +138,34 @@
 												/>
 											</svg>
 										{:else}
-											<svg
-												class="rounded-full {getProgressStyle(level.status)}"
-												width="12"
-												height="12"
-												viewBox="0 0 12 13"
-												fill="none"
-												xmlns="http://www.w3.org/2000/svg"
-											>
-												<rect y="0.5" width="12" height="12" rx="6" fill="#FBFBFB" />
-											</svg>
+											<div
+												class="z-[1] m-3 h-[12px] w-[12px] rounded-full {level.status
+													? 'bg-accent'
+													: 'bg-[#F1F1F133]'}"
+											></div>
 										{/if}
-										<span class="text-[14px] font-[600] text-slate-200">{level.label}</span>
 									</div>
 								{/each}
 							</div>
 						</div>
+						<div class="flex justify-between">
+							{#each levels as level, index}
+								<span class="ml-3 text-[14px] font-[600] text-slate-200">{level.label}</span>
+							{/each}
+						</div>
 					</div>
 
 					<!-- Cards -->
-					<div class="grid gap-8 md:grid-cols-2">
+					<div class="grid gap-[1rem] md:grid-cols-2">
 						<!-- Resume Builder Card -->
 						<div
-							class="relative flex cursor-pointer flex-col justify-between gap-[1rem] rounded-2xl bg-[#F1F1F10F] p-[12px]"
+							class="relative flex flex-col justify-between gap-[1rem] rounded-2xl bg-[#F1F1F10F] p-[12px]"
 						>
 							<p class="text-left text-[20px] font-[400]">
 								Create a professional resume in minutes.
 							</p>
-							<div class="flex items-center justify-between rounded-[16px] bg-accent p-[20px]">
-								<button class="text-2xl font-[600px] text-[#022F49]">Resume Builder</button>
+							<a href="/resume-builder" class="flex items-center justify-between rounded-[16px] bg-accent p-[20px]">
+								<span class="text-2xl font-[600px] text-[#022F49]">Resume Builder</span>
 								<svg
 									width="11"
 									height="21"
@@ -210,18 +182,18 @@
 										stroke-linejoin="round"
 									/>
 								</svg>
-							</div>
+							</a>
 						</div>
 
 						<!-- Work DNA Test Card -->
 						<div
-							class="relative flex cursor-pointer flex-col gap-[1rem] rounded-2xl bg-[#F1F1F10F] p-[12px]"
+							class="relative flex flex-col gap-[1rem] rounded-2xl bg-[#F1F1F10F] p-[12px]"
 						>
 							<p class="text-left text-[20px] font-[400]">
 								Discover your strengths and get personalized insights.
 							</p>
-							<div class="flex items-center justify-between rounded-[16px] bg-accent p-[20px]">
-								<button class="text-2xl font-[600px] text-[#022F49]">Work DNA Test</button>
+							<a href="/work-dna-test" class="flex items-center justify-between rounded-[16px] bg-accent p-[20px]">
+								<span class="text-2xl font-[600px] text-[#022F49]">Work DNA Test</span>
 								<svg
 									width="11"
 									height="21"
@@ -238,7 +210,7 @@
 										stroke-linejoin="round"
 									/>
 								</svg>
-							</div>
+							</a>
 						</div>
 					</div>
 				</div>

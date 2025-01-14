@@ -12,6 +12,7 @@
 	import { AUTH_CONFIG } from '$lib/config/auth';
 	import { onDestroy } from 'svelte';
 	import ErrorMessage from '$lib/components/ErrorMessage.svelte';
+	import ZigzagButton from '$lib/components/ZigzagButton.svelte';
 
 	let loginState = $state({
 		currentStep: 0,
@@ -356,8 +357,6 @@
 								</button>
 							{/if}
 						</div>
-
-						
 					{/if}
 
 					<!-- Add ErrorMessage component -->
@@ -368,47 +367,53 @@
 					<div class="flex flex-col gap-3">
 						<div class="border border-[#D6DDE233]"></div>
 						<div class="flex justify-center lg:justify-start">
-
-						
-						<button
-							type="button"
-							class=" text-sm text-white underline opacity-80 hover:opacity-100"
-							onclick={() => toggleLoginMethod()}
-						>
-							{#if loginState.useOTP}
-								Sign in with Password instead
-							{:else}
-								Sign in with OTP instead
-							{/if}
-						</button>
-					</div>
+							<button
+								type="button"
+								class=" text-sm text-white underline opacity-80 hover:opacity-100"
+								onclick={() => toggleLoginMethod()}
+							>
+								{#if loginState.useOTP}
+									Sign in with Password instead
+								{:else}
+									Sign in with OTP instead
+								{/if}
+							</button>
+						</div>
 					</div>
 
 					<!-- Navigation -->
 
-					<div class="flex items-center gap-4 flex-col lg:flex-row lg:justify-between  ">
-						<button
-							class="flex lg:w-auto w-full justify-center rounded-t-[10px] rounded-bl-[10px] rounded-br-[24px] bg-white px-[26px] py-[13px] text-center text-sm font-medium text-[#003366] transition-colors hover:bg-gray-100"
-							type="submit"
-							disabled={loginState.loading || !canSubmit}
-						>
-							{#if loginState.useOTP}
-								{#if loginState.isOtpSent}
-									Sign In
-								{:else}
-									Get OTP
-								{/if}
+					<div class="flex flex-col items-center gap-4 lg:flex-row lg:justify-between">
+						{#if loginState.useOTP}
+							{#if loginState.isOtpSent}
+								<ZigzagButton
+									text="Sign In"
+									type="submit"
+									disabled={loginState.loading || !canSubmit}
+								/>
 							{:else}
-								Sign In
+								<button
+									class="flex w-full justify-center rounded-t-[10px] rounded-bl-[10px] rounded-br-[24px] bg-white px-[26px] py-[13px] text-center text-sm font-medium text-[#003366] transition-colors hover:bg-gray-100 lg:w-auto"
+									type="submit"
+									disabled={loginState.loading || !canSubmit}
+								>
+									Get OTP
+								</button>
 							{/if}
-						</button>
+						{:else}
+							<ZigzagButton
+								text="Sign In"
+								type="submit"
+								disabled={loginState.loading || !canSubmit}
+							/>
+						{/if}
 
 						<div class="text-center text-white">
-							<span class="text-[14px] font-300 text-[#828BA2]">New Here? </span>
+							<span class="font-300 text-[14px] text-[#828BA2]">New Here? </span>
 
 							<a
 								href={AUTH_CONFIG.ROUTES.SIGNUP}
-								class="text-[#F2F4F6] text-[16px] font-[500] hover:underline"
+								class="text-[16px] font-[500] text-[#F2F4F6] hover:underline"
 							>
 								Sign Up
 							</a>
