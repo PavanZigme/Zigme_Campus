@@ -13,8 +13,9 @@
 		updateAnswer
 	} from '$lib/stores/resumeBuilder';
 
-	const currentQuestion = $derived($questionsStore[0]);
-	let answer = $state($questionsStore[0]?.answer ?? '');
+	const currentQuestion = $derived($questionsStore[2]);
+	let answer = $state($questionsStore[2]?.answer ?? '');
+	let showLoadingPopup = $state(false);
 
 	// Watch for answer changes and update the store
 	$effect(() => {
@@ -47,19 +48,15 @@
 	function cancelSkip() {
 		showSkipConfirmation = false;
 	}
-
-	$effect(() => {
-		console.log(answer);
-	});
 </script>
 
 <div class="flex h-full flex-col gap-6">
 	<div class="flex h-full flex-col justify-between">
 		<div>
-			<h2 class="mb-4 text-xl">{currentQuestion?.question}</h2>
+			<h2 class="mb-4 text-xl">{currentQuestion.question}</h2>
 			<textarea
 				class="h-32 w-full resize-none rounded-[12px] bg-[#F1F1F10F] p-3 text-white placeholder-[#828BA2]"
-				placeholder={currentQuestion?.placeholder}
+				placeholder={currentQuestion.placeholder}
 				bind:value={answer}
 			></textarea>
 		</div>
@@ -75,6 +72,7 @@
 				<button class="text-[14px] font-medium text-white" onclick={handleSkipClick}>
 					Skip Question
 				</button>
+
 				<button
 					class="rounded-b-[8px] rounded-t-[8px] rounded-br-[20px] bg-accent px-[18px] py-[9px] text-[12px] font-medium text-[#022F49]"
 					onclick={handleNext}
@@ -85,7 +83,6 @@
 		</div>
 	</div>
 </div>
-
 {#if showSkipConfirmation}
 	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
 		<div

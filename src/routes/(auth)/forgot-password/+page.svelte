@@ -1,9 +1,7 @@
 <script>
 	import AuthHeader from '$lib/components/auth/AuthHeader.svelte';
 	import InputField from '$lib/components/InputField.svelte';
-	import { SVG } from '$lib/utils/svgs';
-	import { withLoading } from '$lib/utils/async';
-	import { AUTH_CONFIG } from '$lib/config/auth';
+	
 
 	function handleSubmit() {
 		console.log('hi'); 

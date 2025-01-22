@@ -73,7 +73,7 @@ function useFocus(node) {
 			background-color 600000s 0s,
 			color 600000s 0s;
 	}
-	input[data-autocompleted] {
+	/* input[data-autocompleted] {
 		background-color: transparent !important;
-	}
+	} */
 </style>

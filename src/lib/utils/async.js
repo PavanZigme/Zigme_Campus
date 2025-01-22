@@ -1,5 +1,8 @@
+import { toast } from "svelte-sonner";
+
 export async function withLoading(loadingState, asyncFn) {
     loadingState.loading = true;
+    
     try {
         await asyncFn();
     } catch (error) {

@@ -13,8 +13,9 @@
 		updateAnswer
 	} from '$lib/stores/resumeBuilder';
 
-	const currentQuestion = $derived($questionsStore[0]);
-	let answer = $state($questionsStore[0]?.answer ?? '');
+	const currentQuestion = $derived($questionsStore[4]);
+	let answer = $state($questionsStore[4]?.answer ?? '');
+	let showLoadingPopup = $state(false);
 
 	// Watch for answer changes and update the store
 	$effect(() => {
@@ -23,12 +24,24 @@
 		}
 	});
 
+	const question = $derived({
+		question:
+			$resumeBuilderStore.formData?.knowingYou?.questions?.[4]?.question ??
+			"What's your biggest professional achievement?",
+		placeholder:
+			$resumeBuilderStore.formData?.knowingYou?.questions?.[4]?.placeholder ??
+			'Eg. Successfully launched a product that increased company revenue by 25%...'
+	});
+
 	function handleBack() {
 		updateCurrentStep($resumeBuilderStore.currentStep - 1);
 	}
 
 	function handleNext() {
-		updateCurrentStep($resumeBuilderStore.currentStep + 1);
+		showLoadingPopup = true;
+		setTimeout(() => {
+			updateCurrentStep($resumeBuilderStore.currentStep + 1);
+		}, 5000); // 5000 milliseconds = 5 seconds
 	}
 
 	let showSkipConfirmation = $state(false);
@@ -47,19 +60,16 @@
 	function cancelSkip() {
 		showSkipConfirmation = false;
 	}
-
-	$effect(() => {
-		console.log(answer);
-	});
 </script>
 
 <div class="flex h-full flex-col gap-6">
 	<div class="flex h-full flex-col justify-between">
 		<div>
-			<h2 class="mb-4 text-xl">{currentQuestion?.question}</h2>
+			<h2 class="mb-4 text-xl">{currentQuestion.question}</h2>
+
 			<textarea
 				class="h-32 w-full resize-none rounded-[12px] bg-[#F1F1F10F] p-3 text-white placeholder-[#828BA2]"
-				placeholder={currentQuestion?.placeholder}
+				placeholder={currentQuestion.placeholder}
 				bind:value={answer}
 			></textarea>
 		</div>
@@ -72,44 +82,38 @@
 				Back
 			</button>
 			<div class="flex gap-[1rem]">
-				<button class="text-[14px] font-medium text-white" onclick={handleSkipClick}>
-					Skip Question
-				</button>
-				<button
-					class="rounded-b-[8px] rounded-t-[8px] rounded-br-[20px] bg-accent px-[18px] py-[9px] text-[12px] font-medium text-[#022F49]"
-					onclick={handleNext}
-				>
-					Continue
+				<button onclick={handleNext}>
+					{@html SVG.zigme_cta}
 				</button>
 			</div>
 		</div>
 	</div>
 </div>
 
-{#if showSkipConfirmation}
+{#if showLoadingPopup}
 	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
 		<div
-			class="flex max-w-[800px] flex-col gap-[16px] rounded-[36px] bg-white px-[29px] py-[24px] text-center"
+			class="flex max-w-[800px] flex-col gap-[25px] rounded-[36px] bg-white p-8 px-8 text-center sm:p-0"
 		>
-			<h2 class="text-[28px] font-[600] text-[#022F49]">
-				Your answers help us craft a resume that truly represents you!
-			</h2>
-			<p class="text-[20px] font-medium text-[#828BA2]">
-				highlight key details that employers look for.
-			</p>
-			<div class="mt-[25px] flex justify-center gap-4">
-				<button
-					class="bg-trasparent rounded-[10px] rounded-tr-[24px] border border-[#022F49] px-[22px] py-[13px] text-[14px] font-medium text-[#344054]"
-					onclick={confirmSkip}
-				>
-					Skip Anyway
-				</button>
-				<button
-					class="rounded-[10px] rounded-tr-[24px] bg-[#022F49] px-[22px] py-[13px] text-[14px] font-medium text-white"
-					onclick={cancelSkip}
-				>
-					Continue Filling
-				</button>
+			<div>
+				<div class="mb-4 flex justify-center">
+					{@html SVG.Abstract_Loading}
+				</div>
+				<h2 class="mb-2 text-[34px] font-semibold text-[#022F49]">
+					Analyzing Your Unique Traits...
+				</h2>
+				<p class="text-[20px] font-medium text-[#6B7280]">
+					We're connecting the dots between your experiences and strengths. Your personalized skill
+					set is loading—get ready to see how you shine!
+				</p>
+			</div>
+			<div class="flex w-full justify-end px-4">
+				<div class="mt-4 text-[24px] font-medium text-[#F28212]">
+					Scanning for problem-solving mastery...
+				</div>
+				<div class="hidden sm:block">
+					{@html SVG.fun_3D_cartoon}
+				</div>
 			</div>
 		</div>
 	</div>

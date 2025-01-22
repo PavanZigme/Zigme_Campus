@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { auth } from '../stores/auth';
+import { showLoader, hideLoader } from '$lib/stores/loader';
 
 // Simulated API endpoints - replace these with your actual API URLs
 const END_POINT = 'http://192.168.1.52:8014/api/v1';
@@ -15,6 +16,7 @@ const API_ENDPOINTS = {
 
 // Helper function for API calls using Axios
 async function apiCall(endpoint, method = 'GET', data = null) {
+	showLoader(); // You can customize the message or leave it empty
 	try {
 		const token = localStorage.getItem('token');
 
@@ -41,6 +43,8 @@ async function apiCall(endpoint, method = 'GET', data = null) {
 		} else {
 			throw { error: error.message };
 		}
+	} finally {
+		hideLoader();
 	}
 }
 
@@ -66,7 +70,8 @@ export const authService = {
 			return response;
 		} catch (error) {
 			console.error('Login failed:', error);
-			throw new Error('Invalid credentials');
+			// throw new Error('Invalid credentials');
+			throw error;
 		}
 	},
 

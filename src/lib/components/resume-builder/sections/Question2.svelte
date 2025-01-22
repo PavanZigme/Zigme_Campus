@@ -13,8 +13,9 @@
 		updateAnswer
 	} from '$lib/stores/resumeBuilder';
 
-	const currentQuestion = $derived($questionsStore[0]);
-	let answer = $state($questionsStore[0]?.answer ?? '');
+	const currentQuestion = $derived($questionsStore[1]);
+	let answer = $state($questionsStore[1]?.answer ?? '');
+	let showLoadingPopup = $state(false);
 
 	// Watch for answer changes and update the store
 	$effect(() => {
@@ -47,10 +48,6 @@
 	function cancelSkip() {
 		showSkipConfirmation = false;
 	}
-
-	$effect(() => {
-		console.log(answer);
-	});
 </script>
 
 <div class="flex h-full flex-col gap-6">
@@ -75,6 +72,7 @@
 				<button class="text-[14px] font-medium text-white" onclick={handleSkipClick}>
 					Skip Question
 				</button>
+
 				<button
 					class="rounded-b-[8px] rounded-t-[8px] rounded-br-[20px] bg-accent px-[18px] py-[9px] text-[12px] font-medium text-[#022F49]"
 					onclick={handleNext}

@@ -4,11 +4,11 @@
     import { onMount } from 'svelte';
     let { children } = $props();
 
-    // onMount(() => {
-    //     if (!$auth.isAuthenticated) {
-    //         goto('/login');
-    //     }
-    // });
+    onMount(() => {
+        if (!$auth.isAuthenticated) {
+            goto('/login');
+        }
+    });
 
 </script>
 

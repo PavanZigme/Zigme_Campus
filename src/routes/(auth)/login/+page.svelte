@@ -7,12 +7,12 @@
 	import { goto } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
 	import { SVG } from '$lib/utils/svgs';
-	import { withLoading } from '$lib/utils/async';
 	import { validateLoginForm } from '$lib/utils/validation';
 	import { AUTH_CONFIG } from '$lib/config/auth';
 	import { onDestroy } from 'svelte';
 	import ErrorMessage from '$lib/components/ErrorMessage.svelte';
 	import ZigzagButton from '$lib/components/ZigzagButton.svelte';
+	
 
 	let loginState = $state({
 		currentStep: 0,
@@ -32,7 +32,7 @@
 		otp: ''
 	});
 
-	let otpTimer;
+	let otpTimer =$state(null);
 
 	let formErrors = $state({
 		email: '',
@@ -124,34 +124,32 @@
 		}, 1000);
 	}
 
-	async function requestOTP() {
-		// const errors = validateLoginForm(formData, true);
-		// if (errors.length) {
-		// 	errors.forEach((error) => toast.error(error));
-		// 	return;
-		// }
-		loginState.isOtpSent = true;
-		await withLoading(loginState, async () => {
-			loginState.otpHash = await authService.requestLoginOTP(formData.email);
-
-			startResendTimer();
-			toast.success(AUTH_CONFIG.MESSAGES.OTP_SENT);
-		});
-	}
+	// async function requestOTP() {
+	// 	loginState.isOtpSent = true;
+	// 	try {
+	// 		loginState.otpHash = await authService.requestLoginOTP(formData.email);
+	// 		startResendTimer();
+	// 		toast.success(AUTH_CONFIG.MESSAGES.OTP_SENT);
+	// 	} catch (error) {
+	// 		// Handle specific error cases if needed
+	// 		loginState.error = error.message || 'Failed to send OTP';
+	// 		if (error.message?.toLowerCase().includes('email')) {
+	// 			fieldStates.email.hasError = true;
+	// 		}
+	// 	}
+	// }
 
 	async function verifyOTPAndLogin() {
-		await withLoading(loginState, async () => {
-			try {
-				await authService.loginWithOTP(loginState.otpHash.hash, formData.email, formData.otp);
-				toast.success(AUTH_CONFIG.MESSAGES.LOGIN_SUCCESS);
-				goto(AUTH_CONFIG.ROUTES.DASHBOARD);
-			} catch (error) {
-				loginState.error = error.message || 'Failed to verify OTP';
-				if (error.message?.toLowerCase().includes('otp')) {
-					fieldStates.otp.hasError = true;
-				}
+		try {
+			await authService.loginWithOTP(loginState.otpHash.hash, formData.email, formData.otp);
+			toast.success(AUTH_CONFIG.MESSAGES.LOGIN_SUCCESS);
+			goto(AUTH_CONFIG.ROUTES.DASHBOARD);
+		} catch (error) {
+			loginState.error = error.message || 'Failed to verify OTP';
+			if (error.message?.toLowerCase().includes('otp')) {
+				fieldStates.otp.hasError = true;
 			}
-		});
+		}
 	}
 
 	async function handleSubmit(event) {
@@ -193,23 +191,24 @@
 			return;
 		}
 
-		await withLoading(loginState, async () => {
-			try {
-				await authService.login({
-					email: formData.email,
-					password: formData.password
-				});
-				goto(AUTH_CONFIG.ROUTES.DASHBOARD);
-			} catch (error) {
-				loginState.error = error.message || 'Login failed';
-				if (error.message?.toLowerCase().includes('email')) {
-					fieldStates.email.hasError = true;
-				}
-				if (error.message?.toLowerCase().includes('password')) {
-					fieldStates.password.hasError = true;
-				}
+		try {
+			await authService.login({
+				email: formData.email,
+				password: formData.password
+			});
+			goto(AUTH_CONFIG.ROUTES.DASHBOARD);
+		} catch (error) {
+			console.log(error);
+			toast.error(error.message || error.error || 'Login failed');
+			
+			loginState.error = error.message || error.error || 'Login failed';
+			if (error.message?.toLowerCase().includes('email')) {
+				fieldStates.email.hasError = true;
 			}
-		});
+			if (error.message?.toLowerCase().includes('password')) {
+				fieldStates.password.hasError = true;
+			}
+		}
 	}
 
 	async function handleOTPRequest() {
@@ -221,19 +220,16 @@
 		loginState.getOtpFromEmail = true;
 		loginState.isOtpSent = true;
 
-		await withLoading(loginState, async () => {
-			try {
-				loginState.otpHash = await authService.requestLoginOTP(formData.email);
-
-				startResendTimer();
-				toast.success(AUTH_CONFIG.MESSAGES.OTP_SENT);
-			} catch (error) {
-				loginState.error = error.message || 'Failed to send OTP';
-				if (error.message?.toLowerCase().includes('email')) {
-					fieldStates.email.hasError = true;
-				}
+		try {
+			loginState.otpHash = await authService.requestLoginOTP(formData.email);
+			startResendTimer();
+			toast.success(AUTH_CONFIG.MESSAGES.OTP_SENT);
+		} catch (error) {
+			loginState.error = error.message || 'Failed to send OTP';
+			if (error.message?.toLowerCase().includes('email')) {
+				fieldStates.email.hasError = true;
 			}
-		});
+		}
 	}
 
 	async function resendOTP() {

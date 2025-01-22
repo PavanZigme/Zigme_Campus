@@ -2,17 +2,18 @@
 	import AuthHeader from '$lib/components/auth/AuthHeader.svelte';
 	import InputField from '$lib/components/InputField.svelte';
 	import { SVG } from '$lib/utils/svgs';
-	import { withLoading } from '$lib/utils/async';
 	import { AUTH_CONFIG } from '$lib/config/auth';
 	import student1 from '../../../lib/utils/images/millennial-man.png';
 	import student2 from '../../../lib/utils/images/curly-latin-female.png';
+
 
 	const levels = $state([
 		{ id: 'start', label: 'Start', status: true },
 		{ id: 'lvl1', label: 'LVL I', status: false },
 		{ id: 'lvl2', label: 'LVL II', status: false, hasAvatar: true },
 		{ id: 'lvl3', label: 'LVL III', status: false }
-	]);
+	]); 
+
 </script>
 
 <div class="h-screen w-full bg-[#E0E6E9]">
