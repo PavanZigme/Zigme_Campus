@@ -6,12 +6,16 @@
 	import { resumeBuilderStore, updateStepData, markStepComplete } from '$lib/stores/resumeBuilder';
 	import { SVG } from '$lib/utils/svgs';
 	import MultiSelectDropdown from '$lib/components/elements/MultiSelectDropdown.svelte';
+	import Generate from '$lib/components/Generate.svelte';
+	import { onMount } from 'svelte';
+	import { navigationDirection } from '$lib/stores/resumeBuilder';
 
 	let jobTypes = ['Full-time', 'Part-time', 'Freelance', 'Internship'];
 	let isEditing = $state(false);
 	let editingIndex = $state(-1);
 	let experienceList = $state([]);
-
+	let educationList = $state([]);
+	const currentStep = $derived($resumeBuilderStore.currentStep);
 	let currentExperience = $state({
 		title: '',
 		companyName: '',
@@ -29,6 +33,7 @@
 	// Initialize from store
 	$effect(() => {
 		experienceList = $resumeBuilderStore.formData.experience;
+		educationList = $resumeBuilderStore.formData.education;
 	});
 
 	// Update store whenever experienceList changes
@@ -120,12 +125,124 @@
 
 		return `${day}/${month}/${year}`;
 	}
+
+	function handleGenerated(data) {
+		console.log(data);
+	}
+
+	// Add this function to handle the API call
+	async function sendExperienceData() {
+		try {
+			const experienceData = {
+				type: 'education',
+				data: educationList.map((exp) => ({
+					college_name: exp.college,
+					start_year: formatDateForAPI(exp.startDate),
+					end_year: exp.isCurrentlyWorking ? null : formatDateForAPI(exp.endDate),
+					currently_studying: exp.isCurrentlyStudying,
+					cgpa: parseInt(exp.cgpa),
+					course: exp.course
+				}))
+			};
+
+			console.log(experienceData);
+
+			// Get the JWT token from localStorage or your auth store
+			const token = localStorage.getItem('token');
+
+			if (!token) {
+				throw new Error('Authentication token not found');
+			}
+
+			const response = await fetch(
+				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4000/api/v1/resume/create',
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						...(token && { Authorization: `Bearer ${token}` })
+					},
+					body: JSON.stringify(experienceData)
+				}
+			);
+
+			if (!response.ok) {
+				throw new Error(`Failed to send experience data: ${response.statusText}`);
+			}
+
+			const result = await response.json();
+			console.log('Experience data sent successfully:', result);
+		} catch (error) {
+			console.error('Error sending experience data:', error);
+		}
+	}
+
+	function formatDateForAPI(dateString) {
+		if (!dateString) return null;
+
+		// Convert from DD/MM/YYYY to YYYY-MM-DD
+		const [day, month, year] = dateString.split('/');
+		return `${year}-${month}-${day}`;
+	}
+
+	onMount(() => {
+		if ($navigationDirection === 'forward') {
+			sendExperienceData();
+		}
+	});
+
+	async function GenerateDescription() {
+		try {
+			let variables = {
+				company_name: currentExperience.companyName,
+				startDate: formatDateForAPI(currentExperience.startDate),
+				endDate: currentExperience.currentlyWorking
+					? null
+					: formatDateForAPI(currentExperience.endDate),
+				currently_working: currentExperience.currentlyWorking || false,
+				location: currentExperience.location[0] || '',
+				job_type: currentExperience.type?.toLowerCase() || '',
+				job_title: currentExperience.title || ''
+			};
+
+			// Get the JWT token from localStorage or your auth store
+			const token = localStorage.getItem('token');
+
+			if (!token) {
+				throw new Error('Authentication token not found');
+			}
+
+			const response = await fetch(
+				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4000/api/v1/chatGpt/generate-description?type=description',
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						...(token && { Authorization: `Bearer ${token}` })
+					},
+					body: JSON.stringify(variables)
+				}
+			);
+
+			if (!response.ok) {
+				throw new Error(`Failed to send experience data: ${response.statusText}`);
+			}
+
+			const result = await response.json();
+			currentExperience.description = result.data;
+			console.log('Experience data sent successfully:', result);
+		} catch (error) {
+			console.error('Error sending experience data:', error);
+		}
+	}
 </script>
 
 <div class="">
-	<div class="grid max-h-[calc(100vh-350px)] grid-cols-3 gap-[36px] overflow-y-auto">
-		<div class="col-span-2">
-			<div class="flex w-full justify-between gap-[10px]">
+	<div
+		class="flex max-h-[calc(100vh-230px)] w-full flex-col gap-[36px] overflow-y-auto sm:h-full sm:flex-row sm:px-2"
+	>
+		<div class="h-full w-full sm:w-[70%]">
+			<div class="flex w-full flex-col justify-between gap-[10px] sm:flex-row">
 				<div class="w-full">
 					<Input
 						label="Title/ Designation /Role"
@@ -158,19 +275,21 @@
 			</div>
 
 			<div class="flex w-full flex-col justify-between gap-[10px]">
-				<div class="flex w-full justify-between gap-[10px]">
+				<div class="flex w-full flex-col justify-between gap-[10px] sm:flex-row">
 					<div class="w-full">
 						<label for="startDate" class="mb-[6px] text-sm text-slate-200">
 							Start <span class="text-red-500">*</span>
 						</label>
-						<Datepicker
-							id="startDate"
-							name="startDate"
-							value={currentExperience.startDate}
-							onDateChange={(date) => {
-								currentExperience.startDate = date;
-							}}
-						/>
+						<div class="datepicker">
+							<Datepicker
+								id="startDate"
+								name="startDate"
+								value={currentExperience.startDate}
+								onDateChange={(date) => {
+									currentExperience.startDate = date;
+								}}
+							/>
+						</div>
 					</div>
 
 					<div class="w-full">
@@ -218,30 +337,25 @@
 						label="Skills"
 					/>
 				</div>
-
-				<Input
-					label="Description"
-					type="textarea"
-					placeholder="Enter job description"
-					bind:value={currentExperience.description}
-				/>
+				<div class="">
+					<div class="flex justify-between">
+						<label for="description" class="mb-[6px] text-sm text-slate-200">
+							Description <span class="text-red-500">*</span>
+						</label>
+						<button class="" onclick={GenerateDescription}> Generate</button>
+					</div>
+					<textarea
+						id="description"
+						placeholder="Enter job description"
+						bind:value={currentExperience.description}
+						class="h-30 w-full resize-none rounded-[12px] bg-[#F1F1F10F] p-3 text-white placeholder-[#828BA2]"
+					></textarea>
+				</div>
 
 				<div class="flex justify-between">
 					<div class={commonError ? '' : 'invisible'}>
 						<p class="text-sm font-medium text-red-500">{commonError}</p>
 					</div>
-					<!-- <div>
-						<input
-							type="checkbox"
-							id="currently-working"
-							bind:checked={currentExperience.isCurrentlyWorking}
-							class="rounded border-slate-400"
-							onchange={handleCurrentlyWorkingChange}
-						/>
-						<label for="currently-working" class="ml-2 text-sm text-slate-200">
-							Currently Working
-						</label>
-					</div> -->
 				</div>
 			</div>
 
@@ -258,7 +372,7 @@
 			</div>
 		</div>
 
-		<div class="col-span-1">
+		<div class="w-full sm:max-h-[calc(100vh-350px)] sm:w-[30%] sm:overflow-y-auto sm:px-2">
 			{#each experienceList as experience, index}
 				<div class="mb-4 rounded-[20px] bg-[#F1F1F10F] p-4">
 					<div class="mb-2 flex items-start justify-between">

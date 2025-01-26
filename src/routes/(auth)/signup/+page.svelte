@@ -244,8 +244,7 @@
 							formData.fullName
 						);
 
-						goto('/signup-complete');
-
+						goto('/signup-completed');
 					} catch (e) {
 						if (e.status === 409) {
 							error = 'Account already exists with this email or phone';
@@ -310,11 +309,11 @@
 <div class="h-screen w-full bg-[#E0E6E9]">
 	<!-- Main Container -->
 	<div class="mx-auto flex h-full flex-col">
-		<AuthHeader  />
+		<AuthHeader />
 		<!-- Form Section -->
 		<main class="relative h-screen">
 			<!-- svelte-ignore a11y_consider_explicit_label -->
-			 
+
 			<div
 				class="flex h-full flex-col gap-[2rem] rounded-t-[40px] bg-[#022F49] p-[24px] text-white lg:gap-[4rem] lg:rounded-tr-[240px]"
 			>

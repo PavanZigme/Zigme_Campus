@@ -3,10 +3,13 @@
 	import BuilderButton from '../ui/BuilderButton.svelte';
 	import { resumeBuilderStore, updateStepData, markStepComplete } from '$lib/stores/resumeBuilder';
 	import { SVG } from '$lib/utils/svgs';
+	import { onMount } from 'svelte';
+	import { navigationDirection } from '$lib/stores/resumeBuilder';
 
 	let isEditing = $state(false);
 	let editingIndex = $state(-1);
 	let achievementsList = $state([]);
+	let experienceList = $state([]);
 
 	let currentAchievement = $state({
 		title: '',
@@ -19,6 +22,7 @@
 	// Initialize from store
 	$effect(() => {
 		achievementsList = $resumeBuilderStore.formData.achievements;
+		experienceList = $resumeBuilderStore.formData.experience;
 	});
 
 	// Update store whenever achievementsList changes
@@ -72,12 +76,127 @@
 	function removeAchievement(index) {
 		achievementsList = achievementsList.filter((_, i) => i !== index);
 	}
+
+	function formatDate(date) {
+		if (!date) return '';
+		if (typeof date === 'string') {
+			if (/^\d{2}\/\d{2}\/\d{4}$/.test(date)) return date;
+			date = new Date(date);
+		}
+		if (!(date instanceof Date) || isNaN(date)) return '';
+
+		const day = date.getDate().toString().padStart(2, '0');
+		const month = (date.getMonth() + 1).toString().padStart(2, '0');
+		const year = date.getFullYear();
+
+		return `${day}/${month}/${year}`;
+	}
+
+	// Add this function to handle the API call
+	async function sendExperienceData() {
+		try {
+			const experienceData = {
+				type: 'experiences',
+				data: experienceList.map((exp) => ({
+					company_name: exp.companyName,
+					startDate: formatDateForAPI(exp.startDate),
+					endDate: exp.currentlyWorking ? null : formatDateForAPI(exp.endDate),
+					currently_working: exp.currentlyWorking || false,
+					description: exp.description || '',
+					location: exp.location[0] || '',
+					job_type: exp.jobType?.toLowerCase() || '',
+					job_title: exp.jobTitle || ''
+				}))
+			};
+
+			const token = localStorage.getItem('token');
+
+			if (!token) {
+				throw new Error('Authentication token not found');
+			}
+
+			const response = await fetch(
+				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4000/api/v1/resume/create',
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${token}`
+					},
+					body: JSON.stringify(experienceData)
+				}
+			);
+
+			if (!response.ok) {
+				throw new Error(`Failed to send experience data: ${response.statusText}`);
+			}
+
+			const result = await response.json();
+			console.log('Experience data sent successfully:', result);
+		} catch (error) {
+			console.error('Error sending experience data:', error);
+		}
+	}
+
+	function formatDateForAPI(dateString) {
+		if (!dateString) return null;
+
+		// Convert from DD/MM/YYYY to YYYY-MM-DD
+		const [day, month, year] = dateString.split('/');
+		return `${year}-${month}-${day}`;
+	}
+
+	onMount(() => {
+		if ($navigationDirection === 'forward') {
+			sendExperienceData();
+		}
+	});
+
+	async function GenerateDescription() {
+		try {
+			let variables = {
+				issuing_body: currentAchievement.issuingBody,
+				course_name: currentAchievement.title
+			};
+
+			// Get the JWT token from localStorage or your auth store
+			const token = localStorage.getItem('token');
+
+			if (!token) {
+				throw new Error('Authentication token not found');
+			}
+
+			const response = await fetch(
+				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4000/api/v1/chatGpt/generate-description?type=achievements',
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						...(token && { Authorization: `Bearer ${token}` })
+					},
+					body: JSON.stringify(variables)
+				}
+			);
+
+			if (!response.ok) {
+				throw new Error(`Failed to send experience data: ${response.statusText}`);
+			}
+
+			const result = await response.json();
+			currentAchievement.description = result.data;
+			console.log('Experience data sent successfully:', result);
+		} catch (error) {
+			console.error('Error sending experience data:', error);
+		}
+	}
 </script>
 
 <div class="">
-	<div class="grid max-h-[calc(100vh-350px)] grid-cols-3 gap-[36px] overflow-y-auto">
-		<div class="col-span-2">
-			<div class="flex w-full justify-between gap-[10px]">
+	<div
+		class="flex max-h-[calc(100vh-230px)] w-full flex-col gap-[36px] overflow-y-auto sm:h-full sm:flex-row sm:px-2"
+	>
+		<div class="h-full w-full sm:w-[70%]">
+			<div class="flex w-full flex-col justify-between gap-[10px] sm:flex-row">
 				<div class="w-full">
 					<Input
 						label="Achievement"
@@ -97,13 +216,20 @@
 			</div>
 
 			<div class="flex w-full flex-col justify-between gap-[10px]">
-				<Input
-					label="Description"
-					required={true}
-					type="textarea"
-					placeholder="Eg. Managed social media accounts, increasing engagement by 35% through targeted campaigns."
-					bind:value={currentAchievement.description}
-				/>
+				<div class="">
+					<div class="flex justify-between">
+						<label for="description" class="mb-[6px] text-sm text-slate-200">
+							Description <span class="text-red-500">*</span>
+						</label>
+						<button class="" onclick={GenerateDescription}> Generate</button>
+					</div>
+					<textarea
+						id="description"
+						placeholder="Enter description"
+						bind:value={currentAchievement.description}
+						class="h-32 w-full resize-none rounded-[12px] bg-[#F1F1F10F] p-3 text-white placeholder-[#828BA2]"
+					></textarea>
+				</div>
 
 				<div class="flex justify-between">
 					<div class={commonError ? '' : 'invisible'}>
@@ -125,7 +251,7 @@
 			</div>
 		</div>
 
-		<div class="col-span-1">
+		<div class="w-full sm:max-h-[calc(100vh-350px)] sm:w-[30%] sm:overflow-y-auto sm:px-2">
 			{#each achievementsList as achievement, index}
 				<div class="mb-4 rounded-[20px] bg-[#F1F1F10F] p-4">
 					<div class="mb-2 flex items-start justify-between">

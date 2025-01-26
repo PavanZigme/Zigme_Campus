@@ -1,16 +1,28 @@
 <script>
-	import { resumeBuilderStore, updateCurrentStep } from '$lib/stores/resumeBuilder';
+	import {
+		resumeBuilderStore,
+		updateCurrentStep,
+		setNavigationDirection,
+		bioPopupStore
+	} from '$lib/stores/resumeBuilder';
+	import { showLoader, hideLoader } from '$lib/stores/loader';
+	import BioPopup from '$lib/components/BioPopup.svelte';
 
 	let { title = '', subtitle = '', totalSteps = 7, children } = $props();
 
 	function nextStep() {
 		if ($resumeBuilderStore.currentStep < totalSteps) {
+			setNavigationDirection('forward');
 			updateCurrentStep($resumeBuilderStore.currentStep + 1);
+		}
+		if ($resumeBuilderStore.currentStep === totalSteps) {
+			$bioPopupStore = true;
 		}
 	}
 
 	function previousStep() {
 		if ($resumeBuilderStore.currentStep > 1) {
+			setNavigationDirection('backward');
 			updateCurrentStep($resumeBuilderStore.currentStep - 1);
 		}
 	}
@@ -19,9 +31,9 @@
 <div class="h-screen w-full bg-[#E0E6E9]">
 	<div class="mx-auto flex h-full flex-col">
 		<div class="relative">
-			<div class="z-50 p-[48px]">
-				<h2 class="text-[48px] font-[600]">{title}</h2>
-				<p class="text-[24px] font-[500] text-[#828BA2]">
+			<div class="z-50 px-[16px] py-[25px] sm:p-[48px]">
+				<h2 class="text-[24px] font-[700] sm:text-[48px] sm:font-[600]">{title}</h2>
+				<p class="text-[18px] font-[600] text-[#828BA2] sm:text-[24px] sm:font-[500]">
 					{subtitle}
 				</p>
 			</div>
@@ -59,9 +71,8 @@
 						type="button"
 						class="rounded-b-[8px] rounded-t-[8px] rounded-br-[20px] bg-accent px-[18px] py-[9px] text-[12px] font-medium text-[#022F49]"
 						onclick={nextStep}
-						disabled={$resumeBuilderStore.currentStep === totalSteps}
 					>
-						{$resumeBuilderStore.currentStep === totalSteps ? 'Finish' : 'Continue'}
+						Continue
 					</button>
 				</div>
 			</div>

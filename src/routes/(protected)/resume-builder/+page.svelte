@@ -12,6 +12,8 @@
 	import Question5 from '$lib/components/resume-builder/sections/Question5.svelte';
 
 	import { resumeBuilderStore } from '$lib/stores/resumeBuilder';
+	import { showLoader, hideLoader } from '$lib/stores/loader';
+	import { onMount } from 'svelte';
 
 	// let currentStep = $state(1);
 	const totalSteps = 10;
@@ -24,7 +26,7 @@
 		4: { title: 'Knowing You', subtitle: 'You can always come back and edit your story later!' },
 		5: {
 			title: 'Knowing You',
-			subtitle: 'Your story is what makes you unique. Let’s make sure employers see it.'
+			subtitle: "Your story is what makes you unique. Let's make sure employers see it."
 		},
 		6: {
 			title: 'Knowing You',
@@ -34,20 +36,29 @@
 		7: {
 			title: 'Knowing You',
 			subtitle:
-				'Don’t miss out—your story could be the one thing that gets you noticed by recruiters!'
+				"Don't miss out—your story could be the one thing that gets you noticed by recruiters!"
 		},
 		8: {
 			title: 'Knowing You',
 			subtitle:
-				'Your unique story can make employers remember you! Let’s make your resume shine—answer these quick questions!'
+				"Your unique story can make employers remember you! Let's make your resume shine—answer these quick questions!"
 		},
 		9: { title: 'Skills & Languages', subtitle: 'Showcase your strengths.' },
 		10: { title: 'Video Introduction', subtitle: 'Your Moment to Shine!' }
 	};
 
+	// Use derived state for current step
+	const currentStep = $derived($resumeBuilderStore.currentStep);
+
 	// Add a computed property for progress
 	let progress = $derived(Object.values($resumeBuilderStore.stepsCompleted).filter(Boolean).length);
 
+	showLoader();
+	onMount(() => {
+		setTimeout(() => {
+			hideLoader();
+		}, 200);
+	});
 	// console.log($resumeBuilderStore);
 </script>
 
@@ -57,29 +68,32 @@
 </div> -->
 
 <ResumeLayout
-	title={stepTitles[$resumeBuilderStore.currentStep].title}
-	subtitle={stepTitles[$resumeBuilderStore.currentStep].subtitle}
+	title={stepTitles[currentStep].title}
+	subtitle={stepTitles[currentStep].subtitle}
 	{totalSteps}
 >
-	{#if $resumeBuilderStore.currentStep === 1}
-		<Education />
-	{:else if $resumeBuilderStore.currentStep === 2}
-		<Experience />
-	{:else if $resumeBuilderStore.currentStep === 3}
-		<Achievements />
-	{:else if $resumeBuilderStore.currentStep === 4}
-		<KnowingYou />
-	{:else if $resumeBuilderStore.currentStep === 5}
-		<Question2 />
-	{:else if $resumeBuilderStore.currentStep === 6}
-		<Question3 />
-	{:else if $resumeBuilderStore.currentStep === 7}
-		<Question4 />
-	{:else if $resumeBuilderStore.currentStep === 8}
-		<Question5 />
-	{:else if $resumeBuilderStore.currentStep === 9}
-		<Skills />
-	{:else if $resumeBuilderStore.currentStep === 10}
-		<VideoIntro />
-	{/if}
+	<!-- Use key to force component recreation -->
+	{#key currentStep}
+		{#if currentStep === 1}
+			<Education />
+		{:else if currentStep === 2}
+			<Experience />
+		{:else if currentStep === 3}
+			<Achievements />
+		{:else if currentStep === 4}
+			<KnowingYou />
+		{:else if currentStep === 5}
+			<Question2 />
+		{:else if currentStep === 6}
+			<Question3 />
+		{:else if currentStep === 7}
+			<Question4 />
+		{:else if currentStep === 8}
+			<Question5 />
+		{:else if currentStep === 9}
+			<Skills />
+		{:else if currentStep === 10}
+			<VideoIntro />
+		{/if}
+	{/key}
 </ResumeLayout>

@@ -126,9 +126,11 @@
 </script>
 
 <div class="">
-	<div class="grid grid-cols-3 gap-[36px]">
-		<div class="col-span-2">
-			<div class="flex w-full justify-between gap-[10px]">
+	<div
+		class="flex max-h-[calc(100vh-230px)] w-full flex-col gap-[36px] overflow-y-auto sm:h-full sm:flex-row sm:px-2"
+	>
+		<div class="h-full w-full sm:w-[70%]">
+			<div class="flex w-full flex-col justify-between gap-[10px] sm:flex-row">
 				<div class="w-full">
 					<Input
 						label="College"
@@ -160,7 +162,7 @@
 				</div>
 			</div>
 			<div class="flex w-full flex-col justify-between gap-[10px]">
-				<div class="flex w-full justify-between gap-[10px]">
+				<div class="flex w-full flex-col justify-between gap-[10px] sm:flex-row">
 					<div class="w-full">
 						<label for="startDate" class="mb-[6px] text-sm text-slate-200">
 							Start <span class="text-red-500">*</span>
@@ -227,41 +229,49 @@
 				</div>
 			</div>
 		</div>
+		<!-- <div class="absolute h-1 border"></div> -->
 
-		<div class=" col-span-1 max-h-[calc(100vh-350px)] overflow-y-auto pr-2">
-			{#each educationList as education, index}
-				<div class="mb-4 rounded-[20px] bg-[#F1F1F10F] p-4">
-					<div class="mb-2 flex items-start justify-between">
-						<div>
-							<h3 class="text-[14px] font-[600] text-white">{education.college}</h3>
-							<p class="text-[14px] font-normal text-[#828BA2]">{education.course}</p>
+		<div class="w-full sm:max-h-[calc(100vh-350px)] sm:w-[30%] sm:overflow-y-auto sm:px-2">
+			{#if educationList.length}
+				{#each educationList as education, index}
+					<div class="mb-4 rounded-[20px] bg-[#F1F1F10F] p-4">
+						<div class="mb-2 flex items-start justify-between">
+							<div>
+								<h3 class="text-[14px] font-[600] text-white">{education.college}</h3>
+								<p class="text-[14px] font-normal text-[#828BA2]">{education.course}</p>
+							</div>
+
+							<div class="flex gap-2">
+								<BuilderButton variant="icon" onclick={() => editEducation(index)}>
+									{@html SVG.edit_Icon}
+								</BuilderButton>
+								<BuilderButton variant="icon" onclick={() => removeEducation(index)}>
+									{@html SVG.delete_Icon}
+								</BuilderButton>
+							</div>
 						</div>
-
-						<div class="flex gap-2">
-							<BuilderButton variant="icon" onclick={() => editEducation(index)}>
-								{@html SVG.delete_Icon}
-							</BuilderButton>
-							<BuilderButton variant="icon" onclick={() => removeEducation(index)}>
-								{@html SVG.edit_Icon}
-							</BuilderButton>
+						<div class="flex justify-between">
+							<p class="text-[12px] font-[500] text-[#F28212]">
+								{#if education.cgpa}
+									{education.cgpa} CGPA
+								{:else}
+									-
+								{/if}
+							</p>
+							<p class="text-[12px] font-normal text-[#D1D1D1]">
+								{education.startDate} - {education.isCurrentlyStudying
+									? 'Present'
+									: education.endDate}
+							</p>
 						</div>
 					</div>
-					<div class="flex justify-between">
-						<p class="text-[12px] font-[500] text-[#F28212]">
-							{#if education.cgpa}
-								{education.cgpa} CGPA
-							{:else}
-								-
-							{/if}
-						</p>
-						<p class="text-[12px] font-normal text-[#D1D1D1]">
-							{education.startDate} - {education.isCurrentlyStudying
-								? 'Present'
-								: education.endDate}
-						</p>
-					</div>
+				{/each}
+			{:else}
+				<div class="p-[18px] text-[20px] font-medium text-[#F1F1F133]">
+					Let colleges and recruiters see your academic achievements. Add all your qualifications
+					and certifications to paint a complete picture of your potential.
 				</div>
-			{/each}
+			{/if}
 		</div>
 	</div>
 </div>

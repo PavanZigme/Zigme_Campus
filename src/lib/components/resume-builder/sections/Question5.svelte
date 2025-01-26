@@ -13,16 +13,8 @@
 		updateAnswer
 	} from '$lib/stores/resumeBuilder';
 
-	const currentQuestion = $derived($questionsStore[4]);
 	let answer = $state($questionsStore[4]?.answer ?? '');
 	let showLoadingPopup = $state(false);
-
-	// Watch for answer changes and update the store
-	$effect(() => {
-		if (currentQuestion && answer !== currentQuestion.answer) {
-			updateAnswer(currentQuestion.id, answer);
-		}
-	});
 
 	const question = $derived({
 		question:
@@ -53,7 +45,6 @@
 	function confirmSkip() {
 		showSkipConfirmation = false;
 		answer = '';
-		updateAnswer(currentQuestion.id, '');
 		handleNext();
 	}
 
@@ -64,15 +55,17 @@
 
 <div class="flex h-full flex-col gap-6">
 	<div class="flex h-full flex-col justify-between">
-		<div>
-			<h2 class="mb-4 text-xl">{currentQuestion.question}</h2>
+		{#key $questionsStore}
+			<div>
+				<h2 class="mb-4 text-xl">{$questionsStore[4]}</h2>
 
-			<textarea
-				class="h-32 w-full resize-none rounded-[12px] bg-[#F1F1F10F] p-3 text-white placeholder-[#828BA2]"
-				placeholder={currentQuestion.placeholder}
-				bind:value={answer}
-			></textarea>
-		</div>
+				<textarea
+					class="h-32 w-full resize-none rounded-[12px] bg-[#F1F1F10F] p-3 text-white placeholder-[#828BA2]"
+					placeholder="type here"
+					bind:value={answer}
+				></textarea>
+			</div>
+		{/key}
 
 		<div class="flex justify-between">
 			<button

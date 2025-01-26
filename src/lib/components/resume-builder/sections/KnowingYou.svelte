@@ -1,7 +1,7 @@
 <script>
 	import Input from '$lib/components/elements/Input.svelte';
 	import ZigzagButton from '$lib/components/ZigzagButton.svelte';
-
+	import { showLoader, hideLoader } from '$lib/stores/loader';
 	import { SVG } from '$lib/utils/svgs';
 	import { onMount } from 'svelte';
 	import {
@@ -9,29 +9,29 @@
 		updateCurrentStep,
 		updateStepData,
 		markStepComplete,
-		questionsStore,
-		updateAnswer
+		updateAnswer,
+		setNavigationDirection,
+		questionsStore
 	} from '$lib/stores/resumeBuilder';
+	import { navigationDirection } from '$lib/stores/resumeBuilder';
+	import { derived } from 'svelte/store';
 
-	const currentQuestion = $derived($questionsStore[0]);
-	let answer = $state($questionsStore[0]?.answer ?? '');
-
-	// Watch for answer changes and update the store
-	$effect(() => {
-		if (currentQuestion && answer !== currentQuestion.answer) {
-			updateAnswer(currentQuestion.id, answer);
-		}
-	});
+	let achievementsList = $state([]);
+	let educationList = $state([]);
+	let experiencesList = $state([]);
+	let showSkipConfirmation = $state(false);
+	let answer = $state('');
 
 	function handleBack() {
 		updateCurrentStep($resumeBuilderStore.currentStep - 1);
+		setNavigationDirection('backward');
 	}
 
 	function handleNext() {
+		setNavigationDirection('forward');
 		updateCurrentStep($resumeBuilderStore.currentStep + 1);
+		updateStepData('questionAnswers', [{ question: $questionsStore[0], answer: answer }]);
 	}
-
-	let showSkipConfirmation = $state(false);
 
 	function handleSkipClick() {
 		showSkipConfirmation = true;
@@ -40,7 +40,6 @@
 	function confirmSkip() {
 		showSkipConfirmation = false;
 		answer = '';
-		updateAnswer(currentQuestion.id, '');
 		handleNext();
 	}
 
@@ -49,20 +48,146 @@
 	}
 
 	$effect(() => {
-		console.log(answer);
+		achievementsList = $resumeBuilderStore?.formData?.achievements || [];
+		educationList = $resumeBuilderStore?.formData?.education || [];
+		experiencesList = $resumeBuilderStore?.formData?.experience || [];
+		answer = $resumeBuilderStore?.formData?.questionAnswers[0]?.answer || '';
+	});
+
+	// Function to send achievement data to API
+	async function sendAchievementData() {
+		try {
+			const achievementData = {
+				type: 'achievements',
+				data: achievementsList.map((achievement) => ({
+					issuing_body: achievement.issuingBody,
+					course_name: achievement.title,
+					desc: achievement.description || ''
+				}))
+			};
+
+			const token = localStorage.getItem('token');
+
+			if (!token) {
+				throw new Error('Authentication token not found');
+			}
+
+			const response = await fetch(
+				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4000/api/v1/resume/create',
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${token}`
+					},
+					body: JSON.stringify(achievementData)
+				}
+			);
+
+			if (!response.ok) {
+				throw new Error(`Failed to send achievement data: ${response.statusText}`);
+			}
+
+			const result = await response.json();
+		} catch (error) {
+			console.error('Error sending achievement data:', error);
+		}
+	}
+
+	async function generateQuestions() {
+		try {
+			showLoader('Generating Questions...');
+			const resumeData = {
+				education: (educationList || []).map((edu) => ({
+					college_name: edu.collegeName,
+					start_year: edu.startYear,
+					end_year: edu.endYear,
+					currently_studying: edu.currentlyStudying,
+					cgpa: parseInt(edu.cgpa),
+					course: edu.course
+				})),
+				achievements: (achievementsList || []).map((achievement) => ({
+					issuing_body: achievement.issuingBody,
+					course_name: achievement.title,
+					desc: achievement.description || ''
+				})),
+				experiences: (experiencesList || []).map((exp) => ({
+					company_name: exp.companyName,
+					startDate: exp.startDate,
+					endDate: exp.endDate,
+					currently_working: exp.currentlyWorking,
+					description: exp.description || '',
+					location: exp.location,
+					job_type: exp.jobType,
+					job_title: exp.jobTitle
+				}))
+			};
+
+			const token = localStorage.getItem('token');
+
+			if (!token) {
+				throw new Error('Authentication token not found');
+			}
+
+			const response = await fetch(
+				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4000/api/v1/chatGpt/generate-questions',
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${token}`
+					},
+					body: JSON.stringify(resumeData)
+				}
+			);
+
+			if (!response.ok) {
+				throw new Error(`Failed to send resume data: ${response.statusText}`);
+			}
+
+			const result = await response.json();
+			console.log('Resume data sent successfully:', result);
+
+			// Ensure questionsStore is updated with the response
+			if (result.questions && result.questions.length > 0) {
+				const cleanedQuestions = result.questions.map((question) =>
+					question.trim().replace(/^,/, '')
+				);
+				questionsStore.set(cleanedQuestions);
+
+				console.log('questionsStore', $questionsStore);
+			} else {
+				console.error('No questions received from the API');
+			}
+		} catch (error) {
+			console.error('Error sending resume data:', error);
+		} finally {
+			hideLoader();
+		}
+	}
+
+	onMount(() => {
+		if ($navigationDirection === 'forward') {
+			sendAchievementData();
+			generateQuestions();
+		}
 	});
 </script>
 
 <div class="flex h-full flex-col gap-6">
 	<div class="flex h-full flex-col justify-between">
-		<div>
-			<h2 class="mb-4 text-xl">{currentQuestion?.question}</h2>
-			<textarea
-				class="h-32 w-full resize-none rounded-[12px] bg-[#F1F1F10F] p-3 text-white placeholder-[#828BA2]"
-				placeholder={currentQuestion?.placeholder}
-				bind:value={answer}
-			></textarea>
-		</div>
+		{#key $questionsStore}
+			<div>
+				<h2 class="mb-4 text-[18px] font-[500] sm:text-[24px] sm:font-[600]">
+					{$questionsStore[0]} ?
+				</h2>
+				<textarea
+					class="h-60 w-full resize-none rounded-[12px] bg-[#F1F1F10F] p-3 text-white placeholder-[#828BA2] sm:h-32"
+					placeholder="describe your answer"
+					bind:value={answer}
+				></textarea>
+			</div>
+		{/key}
 
 		<div class="flex justify-between">
 			<button

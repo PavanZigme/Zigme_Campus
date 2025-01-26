@@ -3,7 +3,7 @@ import { auth } from '../stores/auth';
 import { showLoader, hideLoader } from '$lib/stores/loader';
 
 // Simulated API endpoints - replace these with your actual API URLs
-const END_POINT = 'http://192.168.1.52:8014/api/v1';
+const END_POINT = 'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4000/api/v1';
 const API_ENDPOINTS = {
 	LOGIN: `${END_POINT}/auth/signIn`,
 	SIGNUP: `${END_POINT}/auth/signUp`,
@@ -142,8 +142,8 @@ export const authService = {
 		try {
 			const response = await apiCall(API_ENDPOINTS.SEND_OTP, 'POST', {
 				email,
-				contact: phone,
-				type: "signup"
+				contact: parseInt(phone),
+				type: 'signup'
 			});
 			return response;
 		} catch (error) {
@@ -175,7 +175,7 @@ export const authService = {
 			return response;
 		} catch (error) {
 			console.error('Login OTP request failed:', error);
-			throw new Error('Failed to send login OTP');
+			throw error;
 		}
 	},
 

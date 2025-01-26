@@ -12,7 +12,6 @@
 	import { onDestroy } from 'svelte';
 	import ErrorMessage from '$lib/components/ErrorMessage.svelte';
 	import ZigzagButton from '$lib/components/ZigzagButton.svelte';
-	
 
 	let loginState = $state({
 		currentStep: 0,
@@ -32,7 +31,7 @@
 		otp: ''
 	});
 
-	let otpTimer =$state(null);
+	let otpTimer = $state(null);
 
 	let formErrors = $state({
 		email: '',
@@ -200,7 +199,7 @@
 		} catch (error) {
 			console.log(error);
 			toast.error(error.message || error.error || 'Login failed');
-			
+
 			loginState.error = error.message || error.error || 'Login failed';
 			if (error.message?.toLowerCase().includes('email')) {
 				fieldStates.email.hasError = true;
@@ -225,7 +224,7 @@
 			startResendTimer();
 			toast.success(AUTH_CONFIG.MESSAGES.OTP_SENT);
 		} catch (error) {
-			loginState.error = error.message || 'Failed to send OTP';
+			loginState.error = error.message || error.error || 'Failed to send OTP';
 			if (error.message?.toLowerCase().includes('email')) {
 				fieldStates.email.hasError = true;
 			}

@@ -9,13 +9,13 @@
 <script>
 	import { auth } from '$lib/stores/auth';
 	import { goto } from '$app/navigation';
-	// $effect(() => {
-	// 	if ($auth.isAuthenticated) {
-	// 		goto('/dashboard');
-	// 	} else {
-	// 		goto('/login');
-	// 	}
-	// });
+	$effect(() => {
+		if ($auth.isAuthenticated) {
+			goto('/dashboard');
+		} else {
+			goto('/login');
+		}
+	});
 </script>
 
 <div class="flex h-screen items-center justify-center">

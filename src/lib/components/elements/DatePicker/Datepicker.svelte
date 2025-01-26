@@ -235,7 +235,7 @@
 	}
 </script>
 
-<div class="relative w-full max-w-md" bind:this={pickerElement}>
+<div class="relative w-full sm:max-w-md" bind:this={pickerElement}>
 	<div class="flex gap-2">
 		<div class="relative flex-1">
 			<input
