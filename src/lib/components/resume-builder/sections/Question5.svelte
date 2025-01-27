@@ -10,30 +10,34 @@
 		updateStepData,
 		markStepComplete,
 		questionsStore,
-		updateAnswer
+		updateAnswer,
+		setNavigationDirection
 	} from '$lib/stores/resumeBuilder';
 
-	let answer = $state($questionsStore[4]?.answer ?? '');
+	let answer = $state('');
 	let showLoadingPopup = $state(false);
+	let questionsAndAnswers = $state([]);
 
-	const question = $derived({
-		question:
-			$resumeBuilderStore.formData?.knowingYou?.questions?.[4]?.question ??
-			"What's your biggest professional achievement?",
-		placeholder:
-			$resumeBuilderStore.formData?.knowingYou?.questions?.[4]?.placeholder ??
-			'Eg. Successfully launched a product that increased company revenue by 25%...'
+	$effect(() => {
+		answer = $resumeBuilderStore?.formData?.questionAnswers[4]?.answer || '';
+		questionsAndAnswers = $resumeBuilderStore?.formData?.questionAnswers || [];
 	});
+
+	function handleNext() {
+		setNavigationDirection('forward');
+		showLoadingPopup = true;
+		updateStepData('questionAnswers', [
+			...questionsAndAnswers,
+			{ question: $questionsStore[4], answer: answer }
+		]);
+		setTimeout(() => {
+			updateCurrentStep($resumeBuilderStore.currentStep + 1);
+			sendQuestionData();
+		}, 3000);
+	}
 
 	function handleBack() {
 		updateCurrentStep($resumeBuilderStore.currentStep - 1);
-	}
-
-	function handleNext() {
-		showLoadingPopup = true;
-		setTimeout(() => {
-			updateCurrentStep($resumeBuilderStore.currentStep + 1);
-		}, 5000); // 5000 milliseconds = 5 seconds
 	}
 
 	let showSkipConfirmation = $state(false);
@@ -51,17 +55,64 @@
 	function cancelSkip() {
 		showSkipConfirmation = false;
 	}
+
+	async function sendQuestionData() {
+		try {
+			const questionData = {
+				type: 'questions',
+				data: questionsAndAnswers.map((qa) => ({
+					question: qa.question,
+					answer: qa.answer || ''
+				}))
+			};
+
+			const token = localStorage.getItem('token');
+
+			if (!token) {
+				throw new Error('Authentication token not found');
+			}
+
+			const response = await fetch(
+				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4000/api/v1/resume/create', // Adjust the endpoint if necessary
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${token}`
+					},
+					body: JSON.stringify(questionData)
+				}
+			);
+
+			if (!response.ok) {
+				throw new Error(`Failed to send question data: ${response.statusText}`);
+			}
+
+			const result = await response.json();
+		} catch (error) {
+			console.error('Error sending question data:', error);
+		}
+	}
 </script>
 
 <div class="flex h-full flex-col gap-6">
 	<div class="flex h-full flex-col justify-between">
 		{#key $questionsStore}
-			<div>
-				<h2 class="mb-4 text-xl">{$questionsStore[4]}</h2>
+			<div class="flex flex-col gap-[16px]">
+				<div class="flex items-start gap-[12px]">
+					<span>
+						<span class="text-[24px] font-normal">5</span>/<span class="text-[14px] font-normal"
+							>{$questionsStore.length}</span
+						>
+					</span>
+					<h2 class="text-[18px] font-[500] sm:text-[24px] sm:font-[600]">
+						{$questionsStore[4]} ?
+					</h2>
+				</div>
 
 				<textarea
 					class="h-32 w-full resize-none rounded-[12px] bg-[#F1F1F10F] p-3 text-white placeholder-[#828BA2]"
-					placeholder="type here"
+					placeholder="describe your answer"
 					bind:value={answer}
 				></textarea>
 			</div>

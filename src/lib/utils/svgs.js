@@ -51,18 +51,19 @@ export const SVG = {
         <path fill-rule="evenodd" clip-rule="evenodd" d="M27 13.25C19.5442 13.25 13.5 19.1822 13.5 26.5C13.5 33.8178 19.5442 39.75 27 39.75C34.4558 39.75 40.5 33.8178 40.5 26.5C40.5 19.1822 34.4558 13.25 27 13.25ZM0 26.5C0 11.8645 12.0883 0 27 0C41.9117 0 54 11.8645 54 26.5C54 41.1355 41.9117 53 27 53C12.0883 53 0 41.1355 0 26.5Z" fill="#D6DDE2"/>
     </svg>`,
 
-	calenderIcon: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M6.6665 1.66699V4.16699" stroke="#F28212" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M13.3335 1.66699V4.16699" stroke="#F28212" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M2.9165 7.5752H17.0832" stroke="#F28212" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M17.5 7.08366V14.167C17.5 16.667 16.25 18.3337 13.3333 18.3337H6.66667C3.75 18.3337 2.5 16.667 2.5 14.167V7.08366C2.5 4.58366 3.75 2.91699 6.66667 2.91699H13.3333C16.25 2.91699 17.5 4.58366 17.5 7.08366Z" stroke="#F28212" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M13.0791 11.4167H13.0866" stroke="#F28212" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M13.0791 13.9167H13.0866" stroke="#F28212" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M9.99607 11.4167H10.0036" stroke="#F28212" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M9.99607 13.9167H10.0036" stroke="#F28212" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M6.91209 11.4167H6.91957" stroke="#F28212" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M6.91209 13.9167H6.91957" stroke="#F28212" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+	calenderIcon: `<svg width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M6.99951 1.66699V4.16699" stroke="#FBFBFB" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M13.6665 1.66699V4.16699" stroke="#FBFBFB" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M3.24951 7.5752H17.4162" stroke="#FBFBFB" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M17.833 7.08366V14.167C17.833 16.667 16.583 18.3337 13.6663 18.3337H6.99967C4.08301 18.3337 2.83301 16.667 2.83301 14.167V7.08366C2.83301 4.58366 4.08301 2.91699 6.99967 2.91699H13.6663C16.583 2.91699 17.833 4.58366 17.833 7.08366Z" stroke="#FBFBFB" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M13.4121 11.4167H13.4196" stroke="#FBFBFB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M13.4121 13.9167H13.4196" stroke="#FBFBFB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M10.3291 11.4167H10.3366" stroke="#FBFBFB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M10.3291 13.9167H10.3366" stroke="#FBFBFB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M7.2451 11.4167H7.25258" stroke="#FBFBFB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M7.2451 13.9167H7.25258" stroke="#FBFBFB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
+
 `,
 
 	rightArrow: `<svg

@@ -9,6 +9,7 @@
 	import Generate from '$lib/components/Generate.svelte';
 	import { onMount } from 'svelte';
 	import { navigationDirection } from '$lib/stores/resumeBuilder';
+	import { showLoader, hideLoader } from '$lib/stores/loader';
 
 	let jobTypes = ['Full-time', 'Part-time', 'Freelance', 'Internship'];
 	let isEditing = $state(false);
@@ -131,7 +132,7 @@
 	}
 
 	// Add this function to handle the API call
-	async function sendExperienceData() {
+	async function sendEducationData() {
 		try {
 			const experienceData = {
 				type: 'education',
@@ -144,8 +145,6 @@
 					course: exp.course
 				}))
 			};
-
-			console.log(experienceData);
 
 			// Get the JWT token from localStorage or your auth store
 			const token = localStorage.getItem('token');
@@ -181,28 +180,29 @@
 		if (!dateString) return null;
 
 		// Convert from DD/MM/YYYY to YYYY-MM-DD
-		const [day, month, year] = dateString.split('/');
+		const [day, month, year] = dateString?.split('/');
 		return `${year}-${month}-${day}`;
 	}
 
 	onMount(() => {
 		if ($navigationDirection === 'forward') {
-			sendExperienceData();
+			sendEducationData();
 		}
 	});
 
 	async function GenerateDescription() {
 		try {
+			showLoader('Generating Discription...');
 			let variables = {
-				company_name: currentExperience.companyName,
-				startDate: formatDateForAPI(currentExperience.startDate),
-				endDate: currentExperience.currentlyWorking
+				company_name: currentExperience?.companyName,
+				startDate: formatDateForAPI(currentExperience?.startDate),
+				endDate: currentExperience?.currentlyWorking
 					? null
-					: formatDateForAPI(currentExperience.endDate),
+					: formatDateForAPI(currentExperience?.endDate),
 				currently_working: currentExperience.currentlyWorking || false,
-				location: currentExperience.location[0] || '',
-				job_type: currentExperience.type?.toLowerCase() || '',
-				job_title: currentExperience.title || ''
+				location: currentExperience?.location[0] || '',
+				job_type: currentExperience?.type?.toLowerCase() || '',
+				job_title: currentExperience?.title || ''
 			};
 
 			// Get the JWT token from localStorage or your auth store
@@ -228,19 +228,19 @@
 				throw new Error(`Failed to send experience data: ${response.statusText}`);
 			}
 
-			const result = await response.json();
-			currentExperience.description = result.data;
+			const result = await response?.json();
+			currentExperience.description = result?.data;
 			console.log('Experience data sent successfully:', result);
 		} catch (error) {
 			console.error('Error sending experience data:', error);
+		} finally {
+			hideLoader();
 		}
 	}
 </script>
 
 <div class="">
-	<div
-		class="flex max-h-[calc(100vh-230px)] w-full flex-col gap-[36px] overflow-y-auto sm:h-full sm:flex-row sm:px-2"
-	>
+	<div class="flex w-full flex-col gap-[36px] sm:h-full sm:flex-row sm:px-2">
 		<div class="h-full w-full sm:w-[70%]">
 			<div class="flex w-full flex-col justify-between gap-[10px] sm:flex-row">
 				<div class="w-full">
@@ -372,7 +372,7 @@
 			</div>
 		</div>
 
-		<div class="w-full sm:max-h-[calc(100vh-350px)] sm:w-[30%] sm:overflow-y-auto sm:px-2">
+		<div class="w-full sm:max-h-[calc(100vh-300px)] sm:w-[30%] sm:overflow-y-auto sm:px-2">
 			{#each experienceList as experience, index}
 				<div class="mb-4 rounded-[20px] bg-[#F1F1F10F] p-4">
 					<div class="mb-2 flex items-start justify-between">

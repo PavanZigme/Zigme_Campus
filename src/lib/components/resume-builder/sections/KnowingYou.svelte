@@ -95,6 +95,7 @@
 	}
 
 	async function generateQuestions() {
+		$resumeBuilderStore.formData.questionAnswers = [];
 		try {
 			showLoader('Generating Questions...');
 			const resumeData = {
@@ -154,8 +155,6 @@
 					question.trim().replace(/^,/, '')
 				);
 				questionsStore.set(cleanedQuestions);
-
-				console.log('questionsStore', $questionsStore);
 			} else {
 				console.error('No questions received from the API');
 			}
@@ -177,12 +176,20 @@
 <div class="flex h-full flex-col gap-6">
 	<div class="flex h-full flex-col justify-between">
 		{#key $questionsStore}
-			<div>
-				<h2 class="mb-4 text-[18px] font-[500] sm:text-[24px] sm:font-[600]">
-					{$questionsStore[0]} ?
-				</h2>
+			<div class="flex flex-col gap-[16px]">
+				<div class="flex items-start gap-[12px]">
+					<span>
+						<span class="text-[24px] font-normal">1</span>/<span class="text-[14px] font-normal"
+							>{$questionsStore.length}</span
+						>
+					</span>
+					<h2 class="text-[18px] font-[500] sm:text-[24px] sm:font-[600]">
+						{$questionsStore[0]} ?
+					</h2>
+				</div>
+
 				<textarea
-					class="h-60 w-full resize-none rounded-[12px] bg-[#F1F1F10F] p-3 text-white placeholder-[#828BA2] sm:h-32"
+					class="h-32 w-full resize-none rounded-[12px] bg-[#F1F1F10F] p-3 text-white placeholder-[#828BA2]"
 					placeholder="describe your answer"
 					bind:value={answer}
 				></textarea>

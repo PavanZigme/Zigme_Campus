@@ -13,17 +13,25 @@
 		updateAnswer
 	} from '$lib/stores/resumeBuilder';
 
-	let answer = $state($questionsStore[3]?.answer ?? '');
+	let answer = $state('');
 	let showLoadingPopup = $state(false);
+	let questionsAndAnswers = $state([]);
 
-	// Watch for answer changes and update the store
-
-	function handleBack() {
-		updateCurrentStep($resumeBuilderStore.currentStep - 1);
-	}
+	$effect(() => {
+		answer = $resumeBuilderStore?.formData?.questionAnswers[3]?.answer || '';
+		questionsAndAnswers = $resumeBuilderStore?.formData?.questionAnswers || [];
+	});
 
 	function handleNext() {
 		updateCurrentStep($resumeBuilderStore.currentStep + 1);
+		updateStepData('questionAnswers', [
+			...questionsAndAnswers,
+			{ question: $questionsStore[3], answer: answer }
+		]);
+	}
+
+	function handleBack() {
+		updateCurrentStep($resumeBuilderStore.currentStep - 1);
 	}
 
 	let showSkipConfirmation = $state(false);
@@ -46,12 +54,21 @@
 <div class="flex h-full flex-col gap-6">
 	<div class="flex h-full flex-col justify-between">
 		{#key $questionsStore}
-			<div>
-				<h2 class="mb-4 text-xl">{$questionsStore[3]}</h2>
+			<div class="flex flex-col gap-[16px]">
+				<div class="flex items-start gap-[12px]">
+					<span>
+						<span class="text-[24px] font-normal">4</span>/<span class="text-[14px] font-normal"
+							>{$questionsStore.length}</span
+						>
+					</span>
+					<h2 class="text-[18px] font-[500] sm:text-[24px] sm:font-[600]">
+						{$questionsStore[3]} ?
+					</h2>
+				</div>
 
 				<textarea
 					class="h-32 w-full resize-none rounded-[12px] bg-[#F1F1F10F] p-3 text-white placeholder-[#828BA2]"
-					placeholder="type here"
+					placeholder="describe your answer"
 					bind:value={answer}
 				></textarea>
 			</div>

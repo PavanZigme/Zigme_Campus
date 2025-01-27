@@ -126,9 +126,7 @@
 </script>
 
 <div class="">
-	<div
-		class="flex max-h-[calc(100vh-230px)] w-full flex-col gap-[36px] overflow-y-auto sm:h-full sm:flex-row sm:px-2"
-	>
+	<div class="flex w-full flex-col gap-[36px] sm:h-full sm:flex-row sm:px-2">
 		<div class="h-full w-full sm:w-[70%]">
 			<div class="flex w-full flex-col justify-between gap-[10px] sm:flex-row">
 				<div class="w-full">
