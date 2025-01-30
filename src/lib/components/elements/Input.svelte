@@ -35,10 +35,10 @@
 		{placeholder}
 		{required}
 		bind:value
-		class="{className} w-full rounded-[12px] border border-white/10 bg-[#F1F1F10F] p-[12px]
-           text-white transition-all
-           duration-200 placeholder:text-[#828BA2] focus:border-white/30
-           focus:bg-black/30 focus:outline-none"
+		class="{className} w-full rounded-[12px] border-none bg-[#F1F1F10F] p-[12px]
+           text-white
+          placeholder:text-[#828BA2] focus:bg-black/30 focus:outline-none
+           focus:ring-0"
 	/>
 </div>
 

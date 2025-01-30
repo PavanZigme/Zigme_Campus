@@ -3,7 +3,6 @@
 	import ZigzagButton from '$lib/components/ZigzagButton.svelte';
 
 	import { SVG } from '$lib/utils/svgs';
-	import { onMount } from 'svelte';
 	import {
 		resumeBuilderStore,
 		updateCurrentStep,
@@ -13,21 +12,45 @@
 		updateAnswer
 	} from '$lib/stores/resumeBuilder';
 
-	let answer = $state('');
+	let answer3 = $state('');
 	let showLoadingPopup = $state(false);
 	let questionsAndAnswers = $state([]);
 
 	$effect(() => {
-		answer = $resumeBuilderStore?.formData?.questionAnswers[2]?.answer || '';
+		answer3 = $resumeBuilderStore?.formData?.questionAnswers[2]?.answer || '';
 		questionsAndAnswers = $resumeBuilderStore?.formData?.questionAnswers || [];
 	});
 
+	// function handleNext() {
+	// 	updateCurrentStep($resumeBuilderStore.currentStep + 1);
+	// 	updateStepData('questionAnswers', [
+	// 		...questionsAndAnswers,
+	// 		{ question: $questionsStore[2], answer: answer }
+	// 	]);
+	// }
+
 	function handleNext() {
 		updateCurrentStep($resumeBuilderStore.currentStep + 1);
-		updateStepData('questionAnswers', [
-			...questionsAndAnswers,
-			{ question: $questionsStore[2], answer: answer }
-		]);
+
+		// Check if the question already exists in questionAnswers
+		const existingAnswerIndex = questionsAndAnswers.findIndex(
+			(qa) => qa.question === $questionsStore[2]
+		);
+
+		if (existingAnswerIndex !== -1) {
+			// Update the existing answer, even if it's empty
+			questionsAndAnswers[existingAnswerIndex].answer = answer3;
+		} else {
+			// Add a new question-answer pair
+			// questionsAndAnswers.push({ question: $questionsStore[2], answer: answer });
+			questionsAndAnswers = [
+				...questionsAndAnswers,
+				{ question: $questionsStore[2], answer: answer3 }
+			];
+		}
+
+		// Update the store with the modified questionsAndAnswers array
+		updateStepData('questionAnswers', questionsAndAnswers);
 	}
 
 	function handleBack() {
@@ -42,7 +65,7 @@
 
 	function confirmSkip() {
 		showSkipConfirmation = false;
-		answer = '';
+		answer3 = '';
 		handleNext();
 	}
 
@@ -70,7 +93,7 @@
 					<textarea
 						class="h-32 w-full resize-none rounded-[12px] bg-[#F1F1F10F] p-3 text-white placeholder-[#828BA2]"
 						placeholder="describe your answer"
-						bind:value={answer}
+						bind:value={answer3}
 					></textarea>
 				</div>
 			{/key}

@@ -19,13 +19,13 @@
 	});
 </script>
 
-{#if !isAuthRoute}
+<!-- {#if !isAuthRoute}
 	<div class="flex">
 		<Sidebar />
 		<div class="ml-64 flex-1 p-5">
 			{@render children()}
 		</div>
 	</div>
-{:else}
-	{@render children()}
-{/if}
+{:else} -->
+{@render children()}
+<!-- {/if} -->

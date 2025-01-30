@@ -22,6 +22,13 @@
 	let showSkipConfirmation = $state(false);
 	let answer = $state('');
 
+	let questionsAndAnswers = $state([]);
+
+	$effect(() => {
+		answer = $resumeBuilderStore?.formData?.questionAnswers[1]?.answer || '';
+		questionsAndAnswers = $resumeBuilderStore?.formData?.questionAnswers || [];
+	});
+
 	function handleBack() {
 		updateCurrentStep($resumeBuilderStore.currentStep - 1);
 		setNavigationDirection('backward');
@@ -30,7 +37,19 @@
 	function handleNext() {
 		setNavigationDirection('forward');
 		updateCurrentStep($resumeBuilderStore.currentStep + 1);
-		updateStepData('questionAnswers', [{ question: $questionsStore[0], answer: answer }]);
+
+		// Check if the question already exists in questionAnswers
+		const existingAnswerIndex = $resumeBuilderStore.formData.questionAnswers.findIndex(
+			(qa) => qa.question === $questionsStore[0]
+		);
+
+		if (existingAnswerIndex !== -1) {
+			// Update the existing answer
+			questionsAndAnswers[existingAnswerIndex].answer = answer;
+		} else {
+			// Add a new question-answer pair
+			updateStepData('questionAnswers', [{ question: $questionsStore[0], answer: answer }]);
+		}
 	}
 
 	function handleSkipClick() {
@@ -73,7 +92,7 @@
 			}
 
 			const response = await fetch(
-				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4000/api/v1/resume/create',
+				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4002/api/v1/resume/create',
 				{
 					method: 'POST',
 					headers: {
@@ -131,7 +150,7 @@
 			}
 
 			const response = await fetch(
-				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4000/api/v1/chatGpt/generate-questions',
+				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4002/api/v1/chatGpt/generate-questions',
 				{
 					method: 'POST',
 					headers: {

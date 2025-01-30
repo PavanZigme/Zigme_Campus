@@ -62,14 +62,9 @@
 	// console.log($resumeBuilderStore);
 </script>
 
-<!-- Add progress indicator -->
-<!-- <div class="mb-4">
-	<p>Progress: {progress} of {totalSteps} steps completed</p>
-</div> -->
-
 <ResumeLayout
-	title={stepTitles[currentStep].title}
-	subtitle={stepTitles[currentStep].subtitle}
+	title={stepTitles[currentStep]?.title}
+	subtitle={stepTitles[currentStep]?.subtitle}
 	{totalSteps}
 >
 	<!-- Use key to force component recreation -->

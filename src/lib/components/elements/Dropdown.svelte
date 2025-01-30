@@ -84,12 +84,12 @@
 
 	{#if isOpen}
 		<div
-			class="absolute z-50 mt-1 max-h-60 w-[260px] overflow-auto rounded-[12px] border border-white/10 bg-[#022F49] shadow-lg"
+			class="absolute z-50 mt-1 max-h-60 w-[260px] overflow-auto rounded-[12px] border border-white/10 bg-[#FFFFFF] shadow-lg"
 		>
 			{#each options as option}
 				<button
 					type="button"
-					class="w-full px-4 py-2 text-left text-white transition-colors hover:bg-[#F1F1F10F]"
+					class="w-full px-4 py-2 text-left text-[14px] font-normal text-[#022F49] transition-colors hover:bg-[#F1F1F10F]"
 					onclick={() => selectOption(option)}
 				>
 					{option}

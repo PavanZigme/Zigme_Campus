@@ -90,7 +90,9 @@
 
 <!-- max-h-[calc(100vh-350px)] overflow-y-auto -->
 
-<div class="  h-[calc(100vh-350px)] h-full w-full overflow-y-auto p-2">
+<div
+	class=" h-full max-h-[calc(100vh-300px)] w-full overflow-y-auto p-2 sm:max-h-[calc(100vh-400px)]"
+>
 	<MultiSelectDropdown
 		options={['English', 'Spanish', 'French', 'German', 'Chinese', 'Japanese']}
 		placeholder="Select languages"

@@ -55,7 +55,7 @@
 			}
 
 			const response = await fetch(
-				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4000/api/v1/chatGpt/generate-description',
+				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4002/api/v1/chatGpt/generate-description',
 				{
 					method: 'GET',
 					headers: {

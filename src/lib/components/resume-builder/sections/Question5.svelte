@@ -3,7 +3,6 @@
 	import ZigzagButton from '$lib/components/ZigzagButton.svelte';
 
 	import { SVG } from '$lib/utils/svgs';
-	import { onMount } from 'svelte';
 	import {
 		resumeBuilderStore,
 		updateCurrentStep,
@@ -26,10 +25,27 @@
 	function handleNext() {
 		setNavigationDirection('forward');
 		showLoadingPopup = true;
-		updateStepData('questionAnswers', [
-			...questionsAndAnswers,
-			{ question: $questionsStore[4], answer: answer }
-		]);
+
+		// Check if the question already exists in questionAnswers
+		const existingAnswerIndex = questionsAndAnswers.findIndex(
+			(qa) => qa.question === $questionsStore[4]
+		);
+
+		if (existingAnswerIndex !== -1) {
+			// Update the existing answer, even if it's empty
+			questionsAndAnswers[existingAnswerIndex].answer = answer;
+		} else {
+			// Add a new question-answer pair
+			// questionsAndAnswers.push({ question: $questionsStore[4], answer: answer });
+			questionsAndAnswers = [
+				...questionsAndAnswers,
+				{ question: $questionsStore[4], answer: answer }
+			];
+		}
+
+		// Update the store with the modified questionsAndAnswers array
+		updateStepData('questionAnswers', questionsAndAnswers);
+
 		setTimeout(() => {
 			updateCurrentStep($resumeBuilderStore.currentStep + 1);
 			sendQuestionData();
@@ -73,7 +89,7 @@
 			}
 
 			const response = await fetch(
-				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4000/api/v1/resume/create', // Adjust the endpoint if necessary
+				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4002/api/v1/resume/create', // Adjust the endpoint if necessary
 				{
 					method: 'POST',
 					headers: {
@@ -137,22 +153,22 @@
 {#if showLoadingPopup}
 	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
 		<div
-			class="flex max-w-[800px] flex-col gap-[25px] rounded-[36px] bg-white p-8 px-8 text-center sm:p-0"
+			class="mx-[30px] flex max-w-[800px] flex-col gap-[25px] rounded-[36px] bg-white p-8 px-8 text-center sm:p-0"
 		>
 			<div>
 				<div class="mb-4 flex justify-center">
 					{@html SVG.Abstract_Loading}
 				</div>
-				<h2 class="mb-2 text-[34px] font-semibold text-[#022F49]">
+				<h2 class="mb-2 text-[18px] font-[700] text-[#022F49] sm:text-[34px]">
 					Analyzing Your Unique Traits...
 				</h2>
-				<p class="text-[20px] font-medium text-[#6B7280]">
+				<p class=" text-[12px] font-medium text-[#6B7280] sm:text-[20px]">
 					We're connecting the dots between your experiences and strengths. Your personalized skill
 					set is loading—get ready to see how you shine!
 				</p>
 			</div>
-			<div class="flex w-full justify-end px-4">
-				<div class="mt-4 text-[24px] font-medium text-[#F28212]">
+			<div class="flex w-full justify-center px-4">
+				<div class="mt-4 text-center text-[14px] font-medium text-[#F28212] sm:text-[24px]">
 					Scanning for problem-solving mastery...
 				</div>
 				<div class="hidden sm:block">

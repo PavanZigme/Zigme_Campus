@@ -3,7 +3,7 @@ import { auth } from '../stores/auth';
 import { showLoader, hideLoader } from '$lib/stores/loader';
 
 // Simulated API endpoints - replace these with your actual API URLs
-const END_POINT = 'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4000/api/v1';
+const END_POINT = 'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4002/api/v1';
 const API_ENDPOINTS = {
 	LOGIN: `${END_POINT}/auth/signIn`,
 	SIGNUP: `${END_POINT}/auth/signUp`,

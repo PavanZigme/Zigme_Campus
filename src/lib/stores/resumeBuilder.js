@@ -33,6 +33,26 @@ export const resumeBuilderStore = persisted('resumeBuilder', initialState);
 // Add this near the other store declarations
 export const bioPopupStore = writable(false);
 
+// Define the total number of pages
+const totalPages = 10; // Adjust this to your actual number of pages
+
+// Initialize the pageProgress array with zeros
+const initialPageProgress = Array(totalPages).fill(0);
+
+// Create a persisted store for pageProgress
+export const pageProgressStore = persisted('pageProgress', initialPageProgress);
+
+// Function to update the page progress
+export function updatePageProgress(pageIndex) {
+	pageProgressStore.update((progress) => {
+		const newProgress = [...progress];
+		if (pageIndex >= 0 && pageIndex < totalPages) {
+			newProgress[pageIndex] = 1;
+		}
+		return newProgress;
+	});
+}
+
 // Helper functions to update store
 export function updateStepData(step, data) {
 	resumeBuilderStore.update((store) => ({

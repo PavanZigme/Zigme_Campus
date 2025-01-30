@@ -3,31 +3,45 @@
 	import ZigzagButton from '$lib/components/ZigzagButton.svelte';
 
 	import { SVG } from '$lib/utils/svgs';
-	import { onMount } from 'svelte';
 	import {
 		resumeBuilderStore,
 		updateCurrentStep,
 		updateStepData,
 		markStepComplete,
 		questionsStore,
-		updateAnswer,
 		setNavigationDirection
 	} from '$lib/stores/resumeBuilder';
 
-	let answer = $state('');
+	let answer2 = $state('');
 	let questionsAndAnswers = $state([]);
 
 	$effect(() => {
-		answer = $resumeBuilderStore?.formData?.questionAnswers[1]?.answer || '';
+		answer2 = $resumeBuilderStore?.formData?.questionAnswers[1]?.answer || '';
 		questionsAndAnswers = $resumeBuilderStore?.formData?.questionAnswers || [];
 	});
 
 	function handleNext() {
 		updateCurrentStep($resumeBuilderStore.currentStep + 1);
-		updateStepData('questionAnswers', [
-			...questionsAndAnswers,
-			{ question: $questionsStore[1], answer: answer }
-		]);
+
+		// Check if the question already exists in questionAnswers
+		const existingAnswerIndex = questionsAndAnswers.findIndex(
+			(qa) => qa.question === $questionsStore[1]
+		);
+
+		if (existingAnswerIndex !== -1) {
+			// Update the existing answer, even if it's empty
+			questionsAndAnswers[existingAnswerIndex].answer = answer2;
+		} else {
+			// Add a new question-answer pair
+			// questionsAndAnswers.push({ question: $questionsStore[1], answer: answer });
+			questionsAndAnswers = [
+				...questionsAndAnswers,
+				{ question: $questionsStore[1], answer: answer2 }
+			];
+		}
+
+		// Update the store with the modified questionsAndAnswers array
+		updateStepData('questionAnswers', questionsAndAnswers);
 	}
 
 	// Subscribe to the questions store to get the second question
@@ -45,7 +59,7 @@
 
 	function confirmSkip() {
 		showSkipConfirmation = false;
-		answer = '';
+		answer2 = '';
 		handleNext();
 	}
 
@@ -72,7 +86,7 @@
 				<textarea
 					class="h-32 w-full resize-none rounded-[12px] bg-[#F1F1F10F] p-3 text-white placeholder-[#828BA2]"
 					placeholder="describe your answer"
-					bind:value={answer}
+					bind:value={answer2}
 				></textarea>
 			</div>
 		{/key}

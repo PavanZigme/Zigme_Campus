@@ -126,8 +126,10 @@
 </script>
 
 <div class="">
-	<div class="flex w-full flex-col gap-[36px] sm:h-full sm:flex-row sm:px-2">
-		<div class="h-full w-full sm:w-[70%]">
+	<div
+		class="flex max-h-[calc(100vh-320px)] w-full flex-col gap-[36px] overflow-y-auto sm:h-full sm:flex-row sm:px-2"
+	>
+		<div class="h-full w-full sm:max-h-[calc(100vh-390px)] sm:w-[70%] sm:overflow-y-auto">
 			<div class="flex w-full flex-col justify-between gap-[10px] sm:flex-row">
 				<div class="w-full">
 					<Input
@@ -229,7 +231,7 @@
 		</div>
 		<!-- <div class="absolute h-1 border"></div> -->
 
-		<div class="w-full sm:max-h-[calc(100vh-350px)] sm:w-[30%] sm:overflow-y-auto sm:px-2">
+		<div class="w-full sm:max-h-[calc(100vh-390px)] sm:w-[30%] sm:overflow-y-auto sm:px-2">
 			{#if educationList.length}
 				{#each educationList as education, index}
 					<div class="mb-4 rounded-[20px] bg-[#F1F1F10F] p-4">

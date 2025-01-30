@@ -6,14 +6,12 @@
 	import student1 from '../../../lib/utils/images/millennial-man.png';
 	import student2 from '../../../lib/utils/images/curly-latin-female.png';
 
-
 	const levels = $state([
 		{ id: 'start', label: 'Start', status: true },
 		{ id: 'lvl1', label: 'LVL I', status: false },
 		{ id: 'lvl2', label: 'LVL II', status: false, hasAvatar: true },
 		{ id: 'lvl3', label: 'LVL III', status: false }
-	]); 
-
+	]);
 </script>
 
 <div class="h-screen w-full bg-[#E0E6E9]">
@@ -21,28 +19,8 @@
 		<div class="relative h-[360px] w-full px-[40px] lg:grid lg:grid-cols-5">
 			<div class="border-black-500 col-span-3 border">
 				<div class="flex w-full items-center gap-[0.5rem] xs:p-[10px] sm:p-[30px] lg:py-[60px]">
-					<svg
-						width="20"
-						height="20"
-						viewBox="0 0 20 20"
-						fill="none"
-						xmlns="http://www.w3.org/2000/svg"
-					>
-						<path
-							d="M3.1333 6.0163V13.9913C3.1333 15.6246 4.90829 16.6496 6.32496 15.833L9.78328 13.8413L13.2416 11.8413C14.6583 11.0246 14.6583 8.98296 13.2416 8.16629L9.78328 6.1663L6.32496 4.17464C4.90829 3.35798 3.1333 4.37464 3.1333 6.0163Z"
-							stroke="#022F49"
-							stroke-width="1.2"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-						/>
-						<path
-							d="M16.8667 15.1496V4.84961"
-							stroke="#022F49"
-							stroke-width="1.2"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-						/>
-					</svg>
+					{@html SVG.goToDash}
+
 					<a href={AUTH_CONFIG.ROUTES.DASHBOARD}> Go to Dashboard </a>
 				</div>
 			</div>
@@ -165,7 +143,10 @@
 							<p class="text-left text-[20px] font-[400]">
 								Create a professional resume in minutes.
 							</p>
-							<a href="/resume-builder" class="flex items-center justify-between rounded-[16px] bg-accent p-[20px]">
+							<a
+								href="/resume-builder"
+								class="flex items-center justify-between rounded-[16px] bg-accent p-[20px]"
+							>
 								<span class="text-2xl font-[600px] text-[#022F49]">Resume Builder</span>
 								<svg
 									width="11"
@@ -187,13 +168,14 @@
 						</div>
 
 						<!-- Work DNA Test Card -->
-						<div
-							class="relative flex flex-col gap-[1rem] rounded-2xl bg-[#F1F1F10F] p-[12px]"
-						>
+						<div class="relative flex flex-col gap-[1rem] rounded-2xl bg-[#F1F1F10F] p-[12px]">
 							<p class="text-left text-[20px] font-[400]">
 								Discover your strengths and get personalized insights.
 							</p>
-							<a href="/work-dna-test" class="flex items-center justify-between rounded-[16px] bg-accent p-[20px]">
+							<a
+								href="/work-dna-test"
+								class="flex items-center justify-between rounded-[16px] bg-accent p-[20px]"
+							>
 								<span class="text-2xl font-[600px] text-[#022F49]">Work DNA Test</span>
 								<svg
 									width="11"

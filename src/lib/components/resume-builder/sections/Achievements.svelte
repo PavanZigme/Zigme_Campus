@@ -5,6 +5,7 @@
 	import { SVG } from '$lib/utils/svgs';
 	import { onMount } from 'svelte';
 	import { navigationDirection } from '$lib/stores/resumeBuilder';
+	import { hideLoader, showLoader } from '$lib/stores/loader';
 
 	let isEditing = $state(false);
 	let editingIndex = $state(-1);
@@ -104,8 +105,8 @@
 					currently_working: exp.currentlyWorking || false,
 					description: exp.description || '',
 					location: exp.location[0] || '',
-					job_type: exp.jobType?.toLowerCase() || '',
-					job_title: exp.jobTitle || ''
+					job_type: exp.type?.toLowerCase() || '',
+					job_title: exp.title || ''
 				}))
 			};
 
@@ -116,7 +117,7 @@
 			}
 
 			const response = await fetch(
-				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4000/api/v1/resume/create',
+				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4002/api/v1/resume/create',
 				{
 					method: 'POST',
 					headers: {
@@ -154,6 +155,8 @@
 
 	async function GenerateDescription() {
 		try {
+			showLoader('Generating Discription...');
+
 			let variables = {
 				issuing_body: currentAchievement.issuingBody,
 				course_name: currentAchievement.title
@@ -167,7 +170,7 @@
 			}
 
 			const response = await fetch(
-				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4000/api/v1/chatGpt/generate-description?type=achievements',
+				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4002/api/v1/chatGpt/generate-description?type=achievements',
 				{
 					method: 'POST',
 					headers: {
@@ -187,15 +190,17 @@
 			console.log('Experience data sent successfully:', result);
 		} catch (error) {
 			console.error('Error sending experience data:', error);
+		} finally {
+			hideLoader();
 		}
 	}
 </script>
 
 <div class="">
 	<div
-		class="flex max-h-[calc(100vh-230px)] w-full flex-col gap-[36px] overflow-y-auto sm:h-full sm:flex-row sm:px-2"
+		class="flex max-h-[calc(100vh-300px)] w-full flex-col gap-[36px] overflow-y-auto sm:h-full sm:flex-row sm:px-2"
 	>
-		<div class="h-full w-full sm:w-[70%]">
+		<div class="h-full w-full sm:max-h-[calc(100vh-390px)] sm:w-[70%] sm:overflow-y-auto">
 			<div class="flex w-full flex-col justify-between gap-[10px] sm:flex-row">
 				<div class="w-full">
 					<Input
@@ -218,10 +223,18 @@
 			<div class="flex w-full flex-col justify-between gap-[10px]">
 				<div class="">
 					<div class="flex justify-between">
-						<label for="description" class="mb-[6px] text-sm text-slate-200">
+						<label for="description" class="h-auto text-sm text-slate-200">
 							Description <span class="text-red-500">*</span>
 						</label>
-						<button class="" onclick={GenerateDescription}> Generate</button>
+						<button
+							class="{!currentAchievement.title || !currentAchievement.issuingBody
+								? 'pointer-events-none opacity-50'
+								: ''} mb-[6px] inline-flex items-center gap-[6px] rounded-[8px] bg-[#F1F1F133] px-[8px] py-[6px] text-[#FBFBFB]"
+							onclick={GenerateDescription}
+						>
+							<span> {@html SVG.GenerateIcon} </span>
+							<span class="text-[14px] font-normal">Generate</span>
+						</button>
 					</div>
 					<textarea
 						id="description"
@@ -251,7 +264,7 @@
 			</div>
 		</div>
 
-		<div class="w-full sm:max-h-[calc(100vh-350px)] sm:w-[30%] sm:overflow-y-auto sm:px-2">
+		<div class="w-full sm:max-h-[calc(100vh-390px)] sm:w-[30%] sm:overflow-y-auto sm:px-2">
 			{#each achievementsList as achievement, index}
 				<div class="mb-4 rounded-[20px] bg-[#F1F1F10F] p-4">
 					<div class="mb-2 flex items-start justify-between">

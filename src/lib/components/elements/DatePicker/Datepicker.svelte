@@ -1,5 +1,6 @@
 <script>
 	import { SVG } from '$lib/utils/svgs';
+	import { onMount } from 'svelte';
 
 	let {
 		value = null,
@@ -97,20 +98,23 @@
 		}
 	}
 
-	// function formatSelectedDate(date) {
-	// 	if (!date) return '';
-	// 	return date.toLocaleDateString('en-GB', {
-	// 		day: 'numeric',
-	// 		month: 'short',
-	// 		year: 'numeric'
-	// 	});
-	// }
+	function handleClickOutside(event) {
+		if (isOpen && pickerElement && !pickerElement.contains(event.target)) {
+			isOpen = false;
+		}
+	}
 
-	// Add and remove click outside listener
 	$effect(() => {
 		if (isOpen) {
 			updatePosition();
+			document.addEventListener('click', handleClickOutside);
+		} else {
+			document.removeEventListener('click', handleClickOutside);
 		}
+
+		return () => {
+			document.removeEventListener('click', handleClickOutside);
+		};
 	});
 
 	function updatePosition() {
@@ -118,11 +122,19 @@
 
 		const rect = pickerElement.getBoundingClientRect();
 		const calendarHeight = calendarElement.offsetHeight;
-		const spaceBelow = window.innerHeight - rect.bottom;
-		const spaceAbove = rect.top;
 
-		position = spaceBelow >= calendarHeight || spaceBelow >= spaceAbove ? 'bottom' : 'top';
+		// Always open upwards
+		position = 'top';
+
+		// Update the position of the calendar element to open upwards
+		calendarElement.style.top = `${rect.top - calendarHeight}px`;
+		calendarElement.style.left = `${rect.left}px`;
 	}
+
+	onMount(() => {
+		window.addEventListener('resize', updatePosition);
+		return () => window.removeEventListener('resize', updatePosition);
+	});
 
 	function toggleCalendar() {
 		isOpen = !isOpen;
@@ -195,14 +207,6 @@
 		}
 	}
 
-	// function formatDate(date) {
-	//   return date.toLocaleDateString('en-US', {
-	//     year: 'numeric',
-	//     month: 'short',
-	//     day: 'numeric'
-	//   });
-	// }
-
 	function parseInputDate(value) {
 		if (!value) return null;
 		if (value instanceof Date) return value;
@@ -235,8 +239,8 @@
 	}
 </script>
 
-<div class="relative w-full sm:max-w-md" bind:this={pickerElement}>
-	<div class="flex gap-2">
+<div class="datepicker-container relative w-full sm:max-w-md" bind:this={pickerElement}>
+	<div class="relative flex gap-2">
 		<div class="relative flex-1">
 			<input
 				type="text"
@@ -269,88 +273,95 @@
 	</div>
 
 	{#if isOpen}
-		<div
-			bind:this={calendarElement}
-			class="absolute {position === 'bottom'
-				? 'top-full mt-1'
-				: 'bottom-full mb-1'} left-0 z-50 w-full min-w-[280px] max-w-[320px] rounded-lg border bg-white p-4 shadow-lg"
-		>
-			<div class="mb-6 flex flex-col items-center justify-between gap-[1rem] sm:flex-row">
-				<div class="flex items-center justify-between">
-					<button
-						class="p-1 text-gray-400 hover:text-gray-600 focus:text-gray-600 focus:outline-none"
-						onclick={previousMonth}
-						aria-label="Previous month"
-					>
-						{@html SVG.rightArrow}
-					</button>
-					<span class="min-w-[80px] text-center font-medium text-orange-500">
-						{months[currentMonth.getMonth()]}
-					</span>
-					<button
-						class="rotate-180 p-1 text-gray-400 hover:text-gray-600 focus:text-gray-600 focus:outline-none"
-						onclick={nextMonth}
-						aria-label="Next month"
-					>
-						{@html SVG.rightArrow}
-					</button>
-				</div>
-				<div class="flex items-center justify-between">
-					<button
-						class="p-1 text-gray-400 hover:text-gray-600 focus:text-gray-600 focus:outline-none"
-						onclick={previousYear}
-						aria-label="Previous year"
-					>
-						{@html SVG.rightArrow}
-					</button>
-					<span class="min-w-[60px] text-center font-medium text-orange-500">
-						{currentMonth.getFullYear()}
-					</span>
-					<button
-						class="rotate-180 p-1 text-gray-400 hover:text-gray-600 focus:text-gray-600 focus:outline-none"
-						onclick={nextYear}
-						aria-label="Next year"
-					>
-						{@html SVG.rightArrow}
-					</button>
-				</div>
-			</div>
-
-			<div class="grid grid-cols-7 gap-1">
-				{#each daysOfWeek as day}
-					<div class="py-2 text-center text-sm font-medium text-gray-400">
-						{day}
+		<div portal>
+			<div
+				bind:this={calendarElement}
+				class="absolute z-50 w-full min-w-[280px] max-w-[320px] rounded-lg border bg-white p-4 shadow-lg"
+				style="position: fixed; z-index: 1000;"
+			>
+				<div class="mb-6 flex flex-col items-center justify-between gap-[1rem] sm:flex-row">
+					<div class="flex items-center justify-between">
+						<button
+							class="p-1 text-gray-400 hover:text-gray-600 focus:text-gray-600 focus:outline-none"
+							onclick={previousMonth}
+							aria-label="Previous month"
+						>
+							{@html SVG.rightArrow}
+						</button>
+						<span class="min-w-[80px] text-center font-medium text-orange-500">
+							{months[currentMonth.getMonth()]}
+						</span>
+						<button
+							class="rotate-180 p-1 text-gray-400 hover:text-gray-600 focus:text-gray-600 focus:outline-none"
+							onclick={nextMonth}
+							aria-label="Next month"
+						>
+							{@html SVG.rightArrow}
+						</button>
 					</div>
-				{/each}
+					<div class="flex items-center justify-between">
+						<button
+							class="p-1 text-gray-400 hover:text-gray-600 focus:text-gray-600 focus:outline-none"
+							onclick={previousYear}
+							aria-label="Previous year"
+						>
+							{@html SVG.rightArrow}
+						</button>
+						<span class="min-w-[60px] text-center font-medium text-orange-500">
+							{currentMonth.getFullYear()}
+						</span>
+						<button
+							class="rotate-180 p-1 text-gray-400 hover:text-gray-600 focus:text-gray-600 focus:outline-none"
+							onclick={nextYear}
+							aria-label="Next year"
+						>
+							{@html SVG.rightArrow}
+						</button>
+					</div>
+				</div>
 
-				{#each generateCalendarDays() as day}
-					<button
-						class="{day === null
-							? 'invisible'
-							: ''} h-8 w-8 rounded-full text-center text-sm hover:bg-gray-100 focus:outline-none
-							{selectedDate &&
-						day === selectedDate.getDate() &&
-						currentMonth.getMonth() === selectedDate.getMonth() &&
-						currentMonth.getFullYear() === selectedDate.getFullYear()
-							? 'bg-orange-500 text-white hover:bg-orange-600'
-							: isDateDisabled(day)
-								? 'cursor-not-allowed text-gray-300 hover:bg-transparent'
-								: 'text-gray-700'}"
-						onclick={() => selectDate(day)}
-						disabled={day === null || isDateDisabled(day)}
-						aria-label={day
-							? `Select ${day} ${months[currentMonth.getMonth()]} ${currentMonth.getFullYear()}`
-							: ''}
-					>
-						{day}
-					</button>
-				{/each}
+				<div class="grid grid-cols-7 gap-1">
+					{#each daysOfWeek as day}
+						<div class="py-2 text-center text-sm font-medium text-gray-400">
+							{day}
+						</div>
+					{/each}
+
+					{#each generateCalendarDays() as day}
+						<button
+							class="{day === null
+								? 'invisible'
+								: ''} h-8 w-8 rounded-full text-center text-sm hover:bg-gray-100 focus:outline-none
+								{selectedDate &&
+							day === selectedDate.getDate() &&
+							currentMonth.getMonth() === selectedDate.getMonth() &&
+							currentMonth.getFullYear() === selectedDate.getFullYear()
+								? 'bg-orange-500 text-white hover:bg-orange-600'
+								: isDateDisabled(day)
+									? 'cursor-not-allowed text-gray-300 hover:bg-transparent'
+									: 'text-gray-700'}"
+							onclick={() => selectDate(day)}
+							disabled={day === null || isDateDisabled(day)}
+							aria-label={day
+								? `Select ${day} ${months[currentMonth.getMonth()]} ${currentMonth.getFullYear()}`
+								: ''}
+						>
+							{day}
+						</button>
+					{/each}
+				</div>
 			</div>
 		</div>
 	{/if}
 </div>
 
 <style>
+	/* Ensure the datepicker is above other elements */
+	.datepicker-container {
+		position: relative;
+		z-index: 1000; /* Adjust as needed */
+	}
+
 	input:-webkit-autofill,
 	input:-webkit-autofill:focus {
 		transition:

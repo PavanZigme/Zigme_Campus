@@ -154,7 +154,7 @@
 			}
 
 			const response = await fetch(
-				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4000/api/v1/resume/create',
+				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4002/api/v1/resume/create',
 				{
 					method: 'POST',
 					headers: {
@@ -213,7 +213,7 @@
 			}
 
 			const response = await fetch(
-				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4000/api/v1/chatGpt/generate-description?type=description',
+				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4002/api/v1/chatGpt/generate-description?type=description',
 				{
 					method: 'POST',
 					headers: {
@@ -240,8 +240,10 @@
 </script>
 
 <div class="">
-	<div class="flex w-full flex-col gap-[36px] sm:h-full sm:flex-row sm:px-2">
-		<div class="h-full w-full sm:w-[70%]">
+	<div
+		class="flex max-h-[calc(100vh-300px)] w-full flex-col gap-[36px] overflow-y-auto sm:h-full sm:flex-row sm:px-2"
+	>
+		<div class="h-full w-full sm:max-h-[calc(100vh-390px)] sm:w-[70%] sm:overflow-y-auto sm:px-2">
 			<div class="flex w-full flex-col justify-between gap-[10px] sm:flex-row">
 				<div class="w-full">
 					<Input
@@ -342,13 +344,22 @@
 						<label for="description" class="mb-[6px] text-sm text-slate-200">
 							Description <span class="text-red-500">*</span>
 						</label>
-						<button class="" onclick={GenerateDescription}> Generate</button>
+						<button
+							class="{!currentExperience.title || !currentExperience.companyName
+								? 'pointer-events-none opacity-50'
+								: ''} mb-[6px] inline-flex items-center gap-[6px] rounded-[8px] bg-[#F1F1F133] px-[8px] py-[6px] text-[#FBFBFB]"
+							onclick={GenerateDescription}
+						>
+							<span> {@html SVG.GenerateIcon} </span>
+							<span class="text-[14px] font-normal">Generate</span>
+						</button>
 					</div>
 					<textarea
 						id="description"
 						placeholder="Enter job description"
+						rows="3"
 						bind:value={currentExperience.description}
-						class="h-30 w-full resize-none rounded-[12px] bg-[#F1F1F10F] p-3 text-white placeholder-[#828BA2]"
+						class="w-full resize-none rounded-[12px] bg-[#F1F1F10F] p-3 text-white placeholder-[#828BA2]"
 					></textarea>
 				</div>
 
@@ -372,7 +383,7 @@
 			</div>
 		</div>
 
-		<div class="w-full sm:max-h-[calc(100vh-300px)] sm:w-[30%] sm:overflow-y-auto sm:px-2">
+		<div class="w-full sm:max-h-[calc(100vh-400px)] sm:w-[30%] sm:overflow-y-auto sm:px-2">
 			{#each experienceList as experience, index}
 				<div class="mb-4 rounded-[20px] bg-[#F1F1F10F] p-4">
 					<div class="mb-2 flex items-start justify-between">

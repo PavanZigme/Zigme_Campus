@@ -8,11 +8,15 @@
 	import { showLoader, hideLoader } from '$lib/stores/loader';
 	import BioPopup from '$lib/components/BioPopup.svelte';
 
-	let { title = '', subtitle = '', totalSteps = 7, children } = $props();
+	let { title = '', subtitle = '', totalSteps = 10, children } = $props();
+
+	// Calculate progress percentage
+	let progress = $derived(($resumeBuilderStore.currentStep / 10) * 100);
 
 	function nextStep() {
 		if ($resumeBuilderStore.currentStep < totalSteps) {
 			setNavigationDirection('forward');
+			// updatePageProgress($resumeBuilderStore.currentStep);
 			updateCurrentStep($resumeBuilderStore.currentStep + 1);
 		}
 		if ($resumeBuilderStore.currentStep === totalSteps) {
@@ -23,6 +27,7 @@
 	function previousStep() {
 		if ($resumeBuilderStore.currentStep > 1) {
 			setNavigationDirection('backward');
+			// updatePageProgress($resumeBuilderStore.currentStep);
 			updateCurrentStep($resumeBuilderStore.currentStep - 1);
 		}
 	}
@@ -31,7 +36,7 @@
 <div class="h-screen w-full bg-[#E0E6E9]">
 	<div class="mx-auto flex h-full flex-col">
 		<div class="relative">
-			<div class="z-50 px-[16px] py-[25px] sm:p-[48px]">
+			<div class="z-50 px-[16px] py-[25px] sm:p-[38px]">
 				<h2 class="text-[24px] font-[700] sm:text-[48px] sm:font-[600]">{title}</h2>
 				<p class="text-[18px] font-[600] text-[#828BA2] sm:text-[24px] sm:font-[500]">
 					{subtitle}
@@ -45,6 +50,19 @@
 			<div
 				class="flex h-full flex-col justify-between gap-[12px] rounded-t-[56px] bg-[#022F49] p-[24px] text-white sm:p-[40px]"
 			>
+				<div class="w-full">
+					<span class="mx-2">Step {$resumeBuilderStore.currentStep}: Resume Basics</span>
+
+					<div class="flex items-center justify-between text-sm text-gray-400">
+						<div class="mx-2 h-2 flex-1 overflow-hidden rounded-full bg-[#F1F1F10F]">
+							<div
+								class="h-full bg-[#828BA2] transition-all duration-300"
+								style="width: {progress}%;"
+							></div>
+						</div>
+						<span>{progress.toFixed(0)}%</span>
+					</div>
+				</div>
 				{@render children()}
 
 				<!-- Navigation Buttons -->

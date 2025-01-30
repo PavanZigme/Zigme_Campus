@@ -1,10 +1,11 @@
 <script>
-	import { resumeBuilderStore } from '$lib/stores/resumeBuilder';
+	import { resumeBuilderStore, updateCurrentStep, updateStepData } from '$lib/stores/resumeBuilder';
 	import { onMount } from 'svelte';
 	import { bioPopupStore } from '$lib/stores/resumeBuilder';
 
 	import BioPopup from '$lib/components/BioPopup.svelte';
 	import { navigationDirection } from '$lib/stores/resumeBuilder';
+	import { showLoader, hideLoader } from '$lib/stores/loader';
 
 	let videoFile = $state(null);
 	let videoUrl = $state(null);
@@ -16,39 +17,92 @@
 	let educationList = $state([]);
 	let experiencesList = $state([]);
 
-	const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
+	const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 	const ALLOWED_FORMATS = ['video/mp4', 'video/mov', 'video/avi'];
 	import { fade } from 'svelte/transition';
+	import { goto } from '$app/navigation';
 
 	let bio = $state('');
 	let isOpen = $state(false);
 
 	async function GenerateBio() {
 		try {
-			const variables = {
-				education: (educationList || []).map((edu) => ({
-					college_name: edu.collegeName,
-					start_year: edu.startYear,
-					end_year: edu.endYear,
-					currently_studying: edu.currentlyStudying,
-					cgpa: parseInt(edu.cgpa),
-					course: edu.course
-				})),
-				achievements: (achievementsList || []).map((achievement) => ({
-					issuing_body: achievement.issuingBody,
-					course_name: achievement.title,
-					desc: achievement.description || ''
-				})),
-				experiences: (experiencesList || []).map((exp) => ({
-					company_name: exp.companyName,
-					startDate: exp.startDate,
-					endDate: exp.endDate,
-					currently_working: exp.currentlyWorking,
-					description: exp.description || '',
-					location: exp.location,
-					job_type: exp.jobType,
-					job_title: exp.jobTitle
-				}))
+			showLoader('Generating your Bio...');
+
+			// Get the JWT token from localStorage or your auth store
+			const token = localStorage.getItem('token');
+
+			if (!token) {
+				throw new Error('Authentication token not found');
+			}
+
+			const response = await fetch(
+				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4002/api/v1/chatGpt/generate-description?type=description',
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						...(token && { Authorization: `Bearer ${token}` })
+					},
+					body: JSON.stringify({
+						education: (educationList || []).map((edu) => ({
+							college_name: edu.collegeName,
+							start_year: edu.startYear,
+							end_year: edu.endYear,
+							currently_studying: edu.currentlyStudying,
+							cgpa: parseInt(edu.cgpa),
+							course: edu.course
+						})),
+						achievements: (achievementsList || []).map((achievement) => ({
+							issuing_body: achievement.issuingBody,
+							course_name: achievement.title,
+							desc: achievement.description || ''
+						})),
+						experiences: (experiencesList || []).map((exp) => ({
+							company_name: exp.companyName,
+							startDate: exp.startDate,
+							endDate: exp.endDate,
+							currently_working: exp.currentlyWorking,
+							description: exp.description || '',
+							location: exp.location,
+							job_type: exp.jobType,
+							job_title: exp.jobTitle
+						}))
+					})
+				}
+			);
+
+			if (!response.ok) {
+				throw new Error(`Failed to send experience data: ${response.statusText}`);
+			}
+
+			const result = await response.json();
+			bio = result.data;
+		} catch (error) {
+			console.error('Error sending experience data:', error);
+		} finally {
+			hideLoader();
+		}
+	}
+
+	$effect(() => {
+		skillCategories = $resumeBuilderStore.formData.skills;
+		languagesArray = $resumeBuilderStore.formData.languages;
+		achievementsList = $resumeBuilderStore?.formData?.achievements || [];
+		educationList = $resumeBuilderStore?.formData?.education || [];
+		experiencesList = $resumeBuilderStore?.formData?.experience || [];
+		// videoFile = $resumeBuilderStore?.formData?.videoIntro;
+	});
+
+	function handleSkip() {
+		$bioPopupStore = false;
+	}
+
+	async function sendBioData() {
+		try {
+			const bioData = {
+				type: 'about_me',
+				data: [bio]
 			};
 
 			// Get the JWT token from localStorage or your auth store
@@ -59,53 +113,45 @@
 			}
 
 			const response = await fetch(
-				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4000/api/v1/chatGpt/generate-description?type=description',
+				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4002/api/v1/resume/create',
 				{
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
 						...(token && { Authorization: `Bearer ${token}` })
 					},
-					body: JSON.stringify(variables)
+					body: JSON.stringify(bioData)
 				}
 			);
 
 			if (!response.ok) {
-				throw new Error(`Failed to send experience data: ${response.statusText}`);
+				throw new Error(`Failed to send bio data: ${response.statusText}`);
 			}
 
 			const result = await response.json();
-			bio = result.data;
-			console.log('Experience data sent successfully:', result);
 		} catch (error) {
-			console.error('Error sending experience data:', error);
+			console.error('Error sending bio data:', error);
 		}
 	}
 
-	$effect(() => {
-		skillCategories = $resumeBuilderStore.formData.skills;
-		languagesArray = $resumeBuilderStore.formData.languages;
-		achievementsList = $resumeBuilderStore?.formData?.achievements || [];
-		educationList = $resumeBuilderStore?.formData?.education || [];
-		experiencesList = $resumeBuilderStore?.formData?.experience || [];
-	});
-
-	function handleSkip() {
-		$bioPopupStore = false;
-	}
-
 	function handleConfirm() {
-		// Handle saving the bio
+		sendBioData();
 		$bioPopupStore = false;
+		goto('/resume-ready');
 	}
 
 	$bioPopupStore = false;
 
-	function handleVideoUpload(event) {
+	async function handleVideoUpload(event) {
 		const file = event.target.files?.[0];
 		error = null;
 
-		if (!file) return;
+		if (!file) {
+			console.error('No file selected');
+			return;
+		}
+
+		console.log('Selected file:', file); // Debugging log
 
 		// Check file format
 		if (!ALLOWED_FORMATS.includes(file.type)) {
@@ -124,14 +170,28 @@
 			error = {
 				title: 'Oops!',
 				message: 'The video file is too large.',
-				details: 'Please upload a video smaller than 100MB.',
+				details: 'Please upload a video smaller than 50MB.',
 				hint: 'Try compressing your video and upload again!'
 			};
 			return;
 		}
 
 		videoFile = file;
-		videoUrl = URL.createObjectURL(file);
+		updateStepData('videoIntro', videoFile);
+
+		try {
+			videoUrl = URL.createObjectURL(file);
+			console.log('Video URL:', videoUrl); // Debugging log
+		} catch (e) {
+			console.error('Error creating video URL:', e);
+			error = {
+				title: 'Error',
+				message: 'Failed to create video URL.',
+				details: 'Please try uploading the video again.'
+			};
+		}
+
+		await sendVideoFile();
 	}
 
 	function removeVideo() {
@@ -158,8 +218,6 @@
 				languages: languagesArray
 			};
 
-			console.log(skillsData);
-
 			// Get the JWT token from localStorage or your auth store
 			const token = localStorage.getItem('token');
 
@@ -168,7 +226,7 @@
 			}
 
 			const response = await fetch(
-				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4000/api/v1/resume/create',
+				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4002/api/v1/resume/create',
 				{
 					method: 'POST',
 					headers: {
@@ -190,6 +248,45 @@
 		}
 	}
 
+	async function sendVideoFile() {
+		try {
+			if (!videoFile) {
+				throw new Error('No video file selected');
+			}
+
+			// Get the JWT token from localStorage or your auth store
+			const token = localStorage.getItem('token');
+
+			if (!token) {
+				throw new Error('Authentication token not found');
+			}
+
+			const formData = new FormData();
+			formData.append('intro', videoFile);
+
+			const response = await fetch(
+				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4002/api/v1/resume/upload-intro',
+
+				{
+					method: 'POST',
+					headers: {
+						...(token && { Authorization: `Bearer ${token}` })
+					},
+
+					body: formData
+				}
+			);
+
+			if (!response.ok) {
+				throw new Error(`Failed to upload video: ${response.statusText}`);
+			}
+
+			const result = await response.json();
+		} catch (error) {
+			console.error('Error uploading video:', error);
+		}
+	}
+
 	onMount(() => {
 		if ($navigationDirection === 'forward') {
 			sendSkillsData();
@@ -197,9 +294,11 @@
 	});
 </script>
 
-<div class="flex flex-col gap-6 p-6">
+<div
+	class="flex h-full max-h-[calc(100vh-300px)] w-full flex-col gap-6 overflow-y-auto p-6 sm:max-h-[calc(100vh-350px)]"
+>
 	<div class="text-center">
-		<h2 class="mb-2 text-[24px] font-[600] text-[#828BA2]">
+		<h2 class="mb-2 text-[14px] font-normal text-[#828BA2] sm:text-[24px] sm:font-[600]">
 			Create a lasting impression by sharing your story in your own words.
 		</h2>
 		<p class="text-[14px] font-normal text-[#828BA2]">
