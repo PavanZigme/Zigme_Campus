@@ -6,10 +6,11 @@
 	import { resumeBuilderStore, updateStepData, markStepComplete } from '$lib/stores/resumeBuilder';
 	import { SVG } from '$lib/utils/svgs';
 	import MultiSelectDropdown from '$lib/components/elements/MultiSelectDropdown.svelte';
-	import Generate from '$lib/components/Generate.svelte';
 	import { onMount } from 'svelte';
 	import { navigationDirection } from '$lib/stores/resumeBuilder';
 	import { showLoader, hideLoader } from '$lib/stores/loader';
+	// import { PUBLIC_ENV_MODE, PUBLIC_API_TEST_URL, PUBLIC_API_MAIN_URL } from '$env/static/public';
+	import { API_END_POINT } from '../../../services/END_POINT';
 
 	let jobTypes = ['Full-time', 'Part-time', 'Freelance', 'Internship'];
 	let isEditing = $state(false);
@@ -70,6 +71,8 @@
 			currentExperience.endDate = '';
 		}
 	}
+
+	// console.log('API Endpoint:', import.meta.env);
 
 	function validateForm() {
 		commonError = '';
@@ -153,17 +156,14 @@
 				throw new Error('Authentication token not found');
 			}
 
-			const response = await fetch(
-				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4002/api/v1/resume/create',
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						...(token && { Authorization: `Bearer ${token}` })
-					},
-					body: JSON.stringify(experienceData)
-				}
-			);
+			const response = await fetch(`${API_END_POINT}/resume/create`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					...(token && { Authorization: `Bearer ${token}` })
+				},
+				body: JSON.stringify(experienceData)
+			});
 
 			if (!response.ok) {
 				throw new Error(`Failed to send experience data: ${response.statusText}`);
@@ -188,6 +188,8 @@
 		if ($navigationDirection === 'forward') {
 			sendEducationData();
 		}
+
+		// Log the API endpoint for debugging
 	});
 
 	async function GenerateDescription() {
@@ -213,7 +215,7 @@
 			}
 
 			const response = await fetch(
-				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4002/api/v1/chatGpt/generate-description?type=description',
+				`${API_END_POINT}/chatGpt/generate-description?type=description`,
 				{
 					method: 'POST',
 					headers: {

@@ -3,15 +3,17 @@ import { auth } from '../stores/auth';
 import { showLoader, hideLoader } from '$lib/stores/loader';
 
 // Simulated API endpoints - replace these with your actual API URLs
-const END_POINT = 'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4002/api/v1';
+// const END_POINT = 'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4002/api/v1';
+// const END_POINT = import.meta.env.VITE_API_URL;
+import { API_END_POINT } from '../services/END_POINT';
 const API_ENDPOINTS = {
-	LOGIN: `${END_POINT}/auth/signIn`,
-	SIGNUP: `${END_POINT}/auth/signUp`,
-	VERIFY_TOKEN: `${END_POINT}/auth/verify`,
-	SEND_OTP: `${END_POINT}/auth/send-otp`,
-	VERIFY_OTP: `${END_POINT}/auth/verify-otp`,
-	REQUEST_LOGIN_OTP: `${END_POINT}/auth/signIn`,
-	LOGIN_WITH_OTP: `${END_POINT}/auth/verify-otp`
+	LOGIN: `${API_END_POINT}/auth/signIn`,
+	SIGNUP: `${API_END_POINT}/auth/signUp`,
+	VERIFY_TOKEN: `${API_END_POINT}/auth/verify`,
+	SEND_OTP: `${API_END_POINT}/auth/send-otp`,
+	VERIFY_OTP: `${API_END_POINT}/auth/verify-otp`,
+	REQUEST_LOGIN_OTP: `${API_END_POINT}/auth/signIn`,
+	LOGIN_WITH_OTP: `${API_END_POINT}/auth/verify-otp`
 };
 
 // Helper function for API calls using Axios

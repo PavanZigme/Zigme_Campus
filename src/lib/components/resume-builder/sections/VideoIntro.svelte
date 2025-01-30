@@ -6,6 +6,7 @@
 	import BioPopup from '$lib/components/BioPopup.svelte';
 	import { navigationDirection } from '$lib/stores/resumeBuilder';
 	import { showLoader, hideLoader } from '$lib/stores/loader';
+	import { API_END_POINT } from '../../../services/END_POINT';
 
 	let videoFile = $state(null);
 	let videoUrl = $state(null);
@@ -37,7 +38,7 @@
 			}
 
 			const response = await fetch(
-				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4002/api/v1/chatGpt/generate-description?type=description',
+				`${API_END_POINT}/chatGpt/generate-description?type=description`,
 				{
 					method: 'POST',
 					headers: {
@@ -112,17 +113,14 @@
 				throw new Error('Authentication token not found');
 			}
 
-			const response = await fetch(
-				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4002/api/v1/resume/create',
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						...(token && { Authorization: `Bearer ${token}` })
-					},
-					body: JSON.stringify(bioData)
-				}
-			);
+			const response = await fetch(`${API_END_POINT}/resume/create`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					...(token && { Authorization: `Bearer ${token}` })
+				},
+				body: JSON.stringify(bioData)
+			});
 
 			if (!response.ok) {
 				throw new Error(`Failed to send bio data: ${response.statusText}`);
@@ -225,17 +223,14 @@
 				throw new Error('Authentication token not found');
 			}
 
-			const response = await fetch(
-				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4002/api/v1/resume/create',
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						...(token && { Authorization: `Bearer ${token}` })
-					},
-					body: JSON.stringify(skillsData)
-				}
-			);
+			const response = await fetch(`${API_END_POINT}/resume/create`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					...(token && { Authorization: `Bearer ${token}` })
+				},
+				body: JSON.stringify(skillsData)
+			});
 
 			if (!response.ok) {
 				throw new Error(`Failed to send skills data: ${response.statusText}`);
@@ -265,7 +260,7 @@
 			formData.append('intro', videoFile);
 
 			const response = await fetch(
-				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4002/api/v1/resume/upload-intro',
+				`${API_END_POINT}/resume/upload-intro`,
 
 				{
 					method: 'POST',

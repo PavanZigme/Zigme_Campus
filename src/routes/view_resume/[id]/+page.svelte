@@ -7,6 +7,7 @@
 	import { goto } from '$app/navigation';
 	import { SVG } from '$lib/utils/svgs';
 	import { page } from '$app/stores';
+	import { API_END_POINT } from '../../../services/END_POINT';
 
 	let arrayTab = $state(['Personal Stories', 'DNA Assessment']);
 	let activeTab = $state(arrayTab[0]);
@@ -52,15 +53,12 @@
 				throw new Error('Authentication token not found');
 			}
 
-			const response = await fetch(
-				`http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4002/api/v1/rich-resume?userId=${userID}`,
-				{
-					method: 'GET',
-					headers: {
-						Authorization: `Bearer ${token}`
-					}
+			const response = await fetch(`${API_END_POINT}/rich-resume?userId=${userID}`, {
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${token}`
 				}
-			);
+			});
 
 			if (!response.ok) {
 				throw new Error(`Failed to fetch user data: ${response.statusText}`);

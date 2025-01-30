@@ -6,6 +6,7 @@
 	import { onMount } from 'svelte';
 	import { navigationDirection } from '$lib/stores/resumeBuilder';
 	import { hideLoader, showLoader } from '$lib/stores/loader';
+	import { API_END_POINT } from '../../../services/END_POINT';
 
 	let isEditing = $state(false);
 	let editingIndex = $state(-1);
@@ -116,17 +117,14 @@
 				throw new Error('Authentication token not found');
 			}
 
-			const response = await fetch(
-				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4002/api/v1/resume/create',
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						Authorization: `Bearer ${token}`
-					},
-					body: JSON.stringify(experienceData)
-				}
-			);
+			const response = await fetch(`${API_END_POINT}/resume/create`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`
+				},
+				body: JSON.stringify(experienceData)
+			});
 
 			if (!response.ok) {
 				throw new Error(`Failed to send experience data: ${response.statusText}`);
@@ -170,7 +168,7 @@
 			}
 
 			const response = await fetch(
-				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4002/api/v1/chatGpt/generate-description?type=achievements',
+				`${API_END_POINT}/chatGpt/generate-description?type=achievements`,
 				{
 					method: 'POST',
 					headers: {

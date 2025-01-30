@@ -4,6 +4,8 @@
 	import { showLoader, hideLoader } from '$lib/stores/loader';
 	import { SVG } from '$lib/utils/svgs';
 	import { onMount } from 'svelte';
+	import { API_END_POINT } from '../../../services/END_POINT';
+
 	import {
 		resumeBuilderStore,
 		updateCurrentStep,
@@ -91,17 +93,14 @@
 				throw new Error('Authentication token not found');
 			}
 
-			const response = await fetch(
-				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4002/api/v1/resume/create',
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						Authorization: `Bearer ${token}`
-					},
-					body: JSON.stringify(achievementData)
-				}
-			);
+			const response = await fetch(`${API_END_POINT}/resume/create`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`
+				},
+				body: JSON.stringify(achievementData)
+			});
 
 			if (!response.ok) {
 				throw new Error(`Failed to send achievement data: ${response.statusText}`);
@@ -149,17 +148,14 @@
 				throw new Error('Authentication token not found');
 			}
 
-			const response = await fetch(
-				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4002/api/v1/chatGpt/generate-questions',
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						Authorization: `Bearer ${token}`
-					},
-					body: JSON.stringify(resumeData)
-				}
-			);
+			const response = await fetch(`${API_END_POINT}/chatGpt/generate-questions`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`
+				},
+				body: JSON.stringify(resumeData)
+			});
 
 			if (!response.ok) {
 				throw new Error(`Failed to send resume data: ${response.statusText}`);

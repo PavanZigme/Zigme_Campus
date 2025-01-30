@@ -3,6 +3,7 @@
 	import { showLoader, hideLoader } from '$lib/stores/loader';
 	import { onMount } from 'svelte';
 	import LoaderGif from '../../../lib/utils/images/Abstract Loading 20 (1).gif';
+	import { API_END_POINT } from '../../../services/END_POINT';
 
 	let user = $state({
 		name: '',
@@ -32,15 +33,12 @@
 				throw new Error('Authentication token not found');
 			}
 
-			const response = await fetch(
-				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4002/api/v1/resume/getMyResume',
-				{
-					method: 'POST',
-					headers: {
-						Authorization: `Bearer ${token}`
-					}
+			const response = await fetch(`${API_END_POINT}/resume/getMyResume`, {
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${token}`
 				}
-			);
+			});
 
 			if (!response.ok) {
 				throw new Error(`Failed to fetch user data: ${response.statusText}`);
@@ -80,16 +78,13 @@
 
 			const templateId = 3848;
 
-			const response = await fetch(
-				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4002/api/v1/pdf/create',
-				{
-					method: 'POST',
-					headers: {
-						Authorization: `Bearer ${token}`
-					},
-					body: JSON.stringify({ templateId })
-				}
-			);
+			const response = await fetch(`${API_END_POINT}/pdf/create`, {
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${token}`
+				},
+				body: JSON.stringify({ templateId })
+			});
 
 			if (!response.ok) {
 				throw new Error(`Failed to download resume: ${response.statusText}`);

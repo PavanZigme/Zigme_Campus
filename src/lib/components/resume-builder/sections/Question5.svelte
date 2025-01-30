@@ -12,6 +12,7 @@
 		updateAnswer,
 		setNavigationDirection
 	} from '$lib/stores/resumeBuilder';
+	import { API_END_POINT } from '../../../services/END_POINT';
 
 	let answer = $state('');
 	let showLoadingPopup = $state(false);
@@ -89,7 +90,7 @@
 			}
 
 			const response = await fetch(
-				'http://ec2-13-61-151-83.eu-north-1.compute.amazonaws.com:4002/api/v1/resume/create', // Adjust the endpoint if necessary
+				`${API_END_POINT}/resume/create`, // Adjust the endpoint if necessary
 				{
 					method: 'POST',
 					headers: {
